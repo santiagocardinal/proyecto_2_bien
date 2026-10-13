@@ -1,16 +1,20 @@
-package ucu.edu.aed.tda.grafo;
+package grafo;
 
-import ucu.edu.aed.tda.grafo.model.IGraph;
-import ucu.edu.aed.tda.grafo.model.edge.Edge;
-import ucu.edu.aed.tda.grafo.model.edge.WeightedEdge;
-import ucu.edu.aed.tda.grafo.model.result.IDijkstraResult;
-import ucu.edu.aed.tda.grafo.model.result.IFloydWarshallResult;
-import ucu.edu.aed.tda.grafo.model.result.Path;
+import grafo.model.IGraph;
+import grafo.model.edge.Edge;
+import grafo.model.edge.WeightedEdge;
+import grafo.model.result.DijkstraResult;
+import grafo.model.result.FloydWarshallResult;
+import grafo.model.result.IDijkstraResult;
+import grafo.model.result.IFloydWarshallResult;
+import grafo.model.result.Path;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
+
+    // ----------------------------------------------------------------- Dijkstra
 
     @Override
     public <V, D extends WeightedEdge> IDijkstraResult<V> dijkstra(Comparable<V> source, IDirectedIGraph<V, D> grafo) {
@@ -23,29 +27,23 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
         }
 
         if (sourceVertex == null) {
-            return new DijkstraResultImpl<>(distances, predecessors, null);
+            return new DijkstraResult<>(distances, new HashMap<>());
         }
 
         distances.put(sourceVertex, 0.0);
         PriorityQueue<VertexDistance<V>> pq = new PriorityQueue<>(Comparator.comparingDouble(vd -> vd.distance));
         pq.add(new VertexDistance<>(sourceVertex, 0.0));
-
         Set<V> visited = new HashSet<>();
 
         while (!pq.isEmpty()) {
-            VertexDistance<V> current = pq.poll();
-            V u = current.vertex;
-
-            if (visited.contains(u)) continue;
-            visited.add(u);
+            V u = pq.poll().vertex;
+            if (!visited.add(u)) continue;
 
             for (Edge<V, D> edge : grafo.adyacencias(grafo.construirComparable(u))) {
                 V v = edge.target();
                 if (visited.contains(v)) continue;
 
-                double weight = edge.dato().getWeight();
-                double newDist = distances.get(u) + weight;
-
+                double newDist = distances.get(u) + edge.dato().getWeight();
                 if (newDist < distances.get(v)) {
                     distances.put(v, newDist);
                     predecessors.put(v, u);
@@ -54,12 +52,24 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
             }
         }
 
-        return new DijkstraResultImpl<>(distances, predecessors, sourceVertex);
+        // Reconstruir el camino de cada vértice alcanzable
+        Map<V, List<V>> paths = new HashMap<>();
+        for (V v : grafo.vertices()) {
+            if (distances.get(v) == Double.POSITIVE_INFINITY) continue;
+            LinkedList<V> path = new LinkedList<>();
+            for (V cur = v; cur != null; cur = predecessors.get(cur)) {
+                path.addFirst(cur);
+                if (cur.equals(sourceVertex)) break;
+            }
+            paths.put(v, path);
+        }
+
+        return new DijkstraResult<>(distances, paths);
     }
 
     private static class VertexDistance<V> {
-        V vertex;
-        double distance;
+        final V vertex;
+        final double distance;
 
         VertexDistance(V vertex, double distance) {
             this.vertex = vertex;
@@ -67,171 +77,124 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
         }
     }
 
-    private static class DijkstraResultImpl<V> implements IDijkstraResult<V> {
-        private final Map<V, Double> distances;
-        private final Map<V, V> predecessors;
-        private final V source;
-
-        public DijkstraResultImpl(Map<V, Double> distances, Map<V, V> predecessors, V source) {
-            this.distances = distances;
-            this.predecessors = predecessors;
-            this.source = source;
-        }
-
-        @Override
-        public double getCost(V otherVertex) {
-            return distances.getOrDefault(otherVertex, Double.POSITIVE_INFINITY);
-        }
-
-        @Override
-        public List<V> getPath(V otherVertex) {
-            LinkedList<V> path = new LinkedList<>();
-            if (source == null || !distances.containsKey(otherVertex) || distances.get(otherVertex) == Double.POSITIVE_INFINITY) {
-                return path;
-            }
-            V current = otherVertex;
-            while (current != null) {
-                path.addFirst(current);
-                if (current.equals(source)) break;
-                current = predecessors.get(current);
-            }
-            if (path.isEmpty() || !path.getFirst().equals(source)) {
-                return Collections.emptyList();
-            }
-            return path;
-        }
-    }
+    // -------------------------------------------------------------------- Floyd
 
     @Override
     public <V, D extends WeightedEdge> IFloydWarshallResult<V> floyd(IDirectedIGraph<V, D> grafo) {
-        Set<V> vertices = grafo.vertices();
-        List<V> vertexList = new ArrayList<>(vertices);
-
+        List<V> vertexList = new ArrayList<>(grafo.vertices());
         Map<V, Map<V, Double>> costMatrix = new HashMap<>();
         Map<V, Map<V, List<V>>> pathMatrix = new HashMap<>();
-
-        for (V u : vertexList) {
-            costMatrix.put(u, new HashMap<>());
-            pathMatrix.put(u, new HashMap<>());
-            for (V v : vertexList) {
-                if (u.equals(v)) {
-                    costMatrix.get(u).put(v, 0.0);
-                    pathMatrix.get(u).put(v, new ArrayList<>(List.of(u)));
-                } else {
-                    costMatrix.get(u).put(v, Double.POSITIVE_INFINITY);
-                    pathMatrix.get(u).put(v, new ArrayList<>());
-                }
-            }
-        }
+        inicializarMatrices(vertexList, costMatrix, pathMatrix);
 
         for (Edge<V, D> edge : grafo.aristas()) {
-            costMatrix.get(edge.source()).put(edge.target(), edge.dato().getWeight());
-            pathMatrix.get(edge.source()).put(edge.target(), new ArrayList<>(List.of(edge.source(), edge.target())));
+            V s = edge.source();
+            V t = edge.target();
+            double w = edge.dato().getWeight();
+            // Un lazo (v -> v) no debe pisar el 0 de la diagonal
+            if (w < costMatrix.get(s).get(t)) {
+                costMatrix.get(s).put(t, w);
+                pathMatrix.get(s).put(t, new ArrayList<>(List.of(s, t)));
+            }
         }
 
         for (V k : vertexList) {
             for (V i : vertexList) {
+                double costIK = costMatrix.get(i).get(k);
+                if (costIK == Double.POSITIVE_INFINITY) continue;
                 for (V j : vertexList) {
-                    double costIK = costMatrix.get(i).get(k);
                     double costKJ = costMatrix.get(k).get(j);
-                    if (costIK != Double.POSITIVE_INFINITY && costKJ != Double.POSITIVE_INFINITY) {
-                        double newCost = costIK + costKJ;
-                        if (newCost < costMatrix.get(i).get(j)) {
-                            costMatrix.get(i).put(j, newCost);
-                            List<V> pathItoK = pathMatrix.get(i).get(k);
-                            List<V> pathKtoJ = pathMatrix.get(k).get(j);
-                            if (!pathItoK.isEmpty() && !pathKtoJ.isEmpty()) {
-                                List<V> combined = new ArrayList<>(pathItoK);
-                                combined.addAll(pathKtoJ.subList(1, pathKtoJ.size()));
-                                pathMatrix.get(i).put(j, combined);
-                            }
-                        }
+                    if (costKJ == Double.POSITIVE_INFINITY) continue;
+                    double newCost = costIK + costKJ;
+                    if (newCost < costMatrix.get(i).get(j)) {
+                        costMatrix.get(i).put(j, newCost);
+                        pathMatrix.get(i).put(j, concatenar(pathMatrix.get(i).get(k), pathMatrix.get(k).get(j)));
                     }
                 }
             }
         }
 
-        return new FloydWarshallResultImpl<>(costMatrix, pathMatrix);
+        return new FloydWarshallResult<>(costMatrix, pathMatrix);
     }
 
+    // ------------------------------------------------------------------ Warshall
+
+    /**
+     * Cierre transitivo. El "costo" es 0 para (v,v), 1 si hay camino y +inf si no lo hay,
+     * por lo que connected(...) indica alcanzabilidad. getPath devuelve un camino (no necesariamente el más corto).
+     */
     @Override
     public <V, D extends WeightedEdge> IFloydWarshallResult<V> warshall(IDirectedIGraph<V, D> grafo) {
-        Set<V> vertices = grafo.vertices();
-        List<V> vertexList = new ArrayList<>(vertices);
-
+        List<V> vertexList = new ArrayList<>(grafo.vertices());
         Map<V, Map<V, Double>> reachMatrix = new HashMap<>();
         Map<V, Map<V, List<V>>> pathMatrix = new HashMap<>();
-
-        for (V u : vertexList) {
-            reachMatrix.put(u, new HashMap<>());
-            pathMatrix.put(u, new HashMap<>());
-            for (V v : vertexList) {
-                if (u.equals(v)) {
-                    reachMatrix.get(u).put(v, 0.0);
-                    pathMatrix.get(u).put(v, new ArrayList<>(List.of(u)));
-                } else {
-                    reachMatrix.get(u).put(v, Double.POSITIVE_INFINITY);
-                    pathMatrix.get(u).put(v, new ArrayList<>());
-                }
-            }
-        }
+        inicializarMatrices(vertexList, reachMatrix, pathMatrix);
 
         for (Edge<V, D> edge : grafo.aristas()) {
-            reachMatrix.get(edge.source()).put(edge.target(), 1.0);
-            pathMatrix.get(edge.source()).put(edge.target(), new ArrayList<>(List.of(edge.source(), edge.target())));
+            V s = edge.source();
+            V t = edge.target();
+            if (!s.equals(t)) {
+                reachMatrix.get(s).put(t, 1.0);
+                pathMatrix.get(s).put(t, new ArrayList<>(List.of(s, t)));
+            }
         }
 
         for (V k : vertexList) {
             for (V i : vertexList) {
+                if (reachMatrix.get(i).get(k) == Double.POSITIVE_INFINITY) continue;
                 for (V j : vertexList) {
-                    if (reachMatrix.get(i).get(k) != Double.POSITIVE_INFINITY && reachMatrix.get(k).get(j) != Double.POSITIVE_INFINITY) {
+                    if (reachMatrix.get(i).get(j) == Double.POSITIVE_INFINITY
+                            && reachMatrix.get(k).get(j) != Double.POSITIVE_INFINITY) {
                         reachMatrix.get(i).put(j, 1.0);
+                        pathMatrix.get(i).put(j, concatenar(pathMatrix.get(i).get(k), pathMatrix.get(k).get(j)));
                     }
                 }
             }
         }
 
-        return new FloydWarshallResultImpl<>(reachMatrix, pathMatrix);
+        return new FloydWarshallResult<>(reachMatrix, pathMatrix);
     }
 
-    private static class FloydWarshallResultImpl<V> implements IFloydWarshallResult<V> {
-        private final Map<V, Map<V, Double>> costs;
-        private final Map<V, Map<V, List<V>>> paths;
-
-        public FloydWarshallResultImpl(Map<V, Map<V, Double>> costs, Map<V, Map<V, List<V>>> paths) {
-            this.costs = costs;
-            this.paths = paths;
-        }
-
-        @Override
-        public List<V> getPath(V source, V target) {
-            if (paths.containsKey(source) && paths.get(source).containsKey(target)) {
-                return paths.get(source).get(target);
+    private <V> void inicializarMatrices(List<V> vertexList,
+                                         Map<V, Map<V, Double>> costMatrix,
+                                         Map<V, Map<V, List<V>>> pathMatrix) {
+        for (V u : vertexList) {
+            Map<V, Double> fila = new HashMap<>();
+            Map<V, List<V>> filaPaths = new HashMap<>();
+            for (V v : vertexList) {
+                if (u.equals(v)) {
+                    fila.put(v, 0.0);
+                    filaPaths.put(v, new ArrayList<>(List.of(u)));
+                } else {
+                    fila.put(v, Double.POSITIVE_INFINITY);
+                    filaPaths.put(v, new ArrayList<>());
+                }
             }
-            return Collections.emptyList();
-        }
-
-        @Override
-        public double getCost(V source, V target) {
-            if (costs.containsKey(source) && costs.get(source).containsKey(target)) {
-                return costs.get(source).get(target);
-            }
-            return Double.POSITIVE_INFINITY;
-        }
-
-        @Override
-        public boolean connected(V source, V target) {
-            return getCost(source, target) != Double.POSITIVE_INFINITY;
+            costMatrix.put(u, fila);
+            pathMatrix.put(u, filaPaths);
         }
     }
 
+    /** Une el camino i->k con k->j sin repetir k. */
+    private <V> List<V> concatenar(List<V> pathIK, List<V> pathKJ) {
+        List<V> combined = new ArrayList<>(pathIK);
+        combined.addAll(pathKJ.subList(1, pathKJ.size()));
+        return combined;
+    }
+
+    // ------------------------------------------------- Centro y excentricidad
+
+    /**
+     * Centro del grafo: el vértice de menor excentricidad.
+     * Si ningún vértice es alcanzable desde todos los demás, retorna null.
+     */
     @Override
     public <V, D extends WeightedEdge> V obtenerCentroGrafo(IDirectedIGraph<V, D> grafo) {
+        IFloydWarshallResult<V> floyd = floyd(grafo); // se calcula UNA sola vez
         V center = null;
         double minEccentricity = Double.POSITIVE_INFINITY;
 
         for (V vertex : grafo.vertices()) {
-            double eccentricity = obtenerExcentricidad(grafo, grafo.construirComparable(vertex));
+            double eccentricity = excentricidad(grafo, floyd, vertex);
             if (eccentricity < minEccentricity) {
                 minEccentricity = eccentricity;
                 center = vertex;
@@ -240,36 +203,43 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
         return center;
     }
 
+    /**
+     * Excentricidad de v = max { costo del camino más corto de w a v | w en V }
+     * (definición de Aho-Hopcroft-Ullman: se mira la COLUMNA de v en la matriz de Floyd).
+     */
     @Override
     public <V, D extends WeightedEdge> double obtenerExcentricidad(IDirectedIGraph<V, D> grafo, Comparable<V> vertexCriteria) {
-        IDijkstraResult<V> result = dijkstra(vertexCriteria, grafo);
-        double maxCost = 0.0;
+        V vertex = grafo.buscarVertice(vertexCriteria);
+        if (vertex == null) return Double.POSITIVE_INFINITY;
+        return excentricidad(grafo, floyd(grafo), vertex);
+    }
 
-        for (V vertex : grafo.vertices()) {
-            double cost = result.getCost(vertex);
-            if (cost == Double.POSITIVE_INFINITY) {
-                return Double.POSITIVE_INFINITY;
-            }
-            if (cost > maxCost) {
-                maxCost = cost;
+    private <V> double excentricidad(IGraph<V, ?> grafo, IFloydWarshallResult<V> floyd, V vertex) {
+        double max = 0.0;
+        for (V w : grafo.vertices()) {
+            double cost = floyd.getCost(w, vertex);
+            if (cost > max) {
+                max = cost; // si algún w no llega a v queda +infinito
             }
         }
-        return maxCost;
+        return max;
     }
+
+    // ------------------------------------------------------- Todos los caminos
 
     @Override
     public <V, D extends WeightedEdge> List<Path<V>> obtenerTodosLosCaminos(Comparable<V> sourceCriteria, Comparable<V> targetCriteria, IGraph<V, D> grafo) {
         V source = grafo.buscarVertice(sourceCriteria);
         V target = grafo.buscarVertice(targetCriteria);
         List<Path<V>> allPaths = new ArrayList<>();
-
         if (source == null || target == null) return allPaths;
 
         dfsAllPaths(source, target, grafo, new ArrayList<>(), new HashSet<>(), 0.0, allPaths);
         return allPaths;
     }
 
-    private <V, D> void dfsAllPaths(V current, V target, IGraph<V, D> grafo, List<V> currentPath, Set<V> visited, double currentCost, List<Path<V>> allPaths) {
+    private <V, D extends WeightedEdge> void dfsAllPaths(V current, V target, IGraph<V, D> grafo, List<V> currentPath,
+                                                         Set<V> visited, double currentCost, List<Path<V>> allPaths) {
         visited.add(current);
         currentPath.add(current);
 
@@ -279,8 +249,8 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
             for (Edge<V, D> edge : grafo.adyacencias(grafo.construirComparable(current))) {
                 V neighbor = edge.target();
                 if (!visited.contains(neighbor)) {
-                    double weight = edge.dato() instanceof WeightedEdge ? ((WeightedEdge) edge.dato()).getWeight() : 1.0;
-                    dfsAllPaths(neighbor, target, grafo, currentPath, visited, currentCost + weight, allPaths);
+                    dfsAllPaths(neighbor, target, grafo, currentPath, visited,
+                            currentCost + edge.dato().getWeight(), allPaths);
                 }
             }
         }
@@ -289,19 +259,18 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
         visited.remove(current);
     }
 
+    // --------------------------------------------------------------- Recorridos
+
     @Override
     public <V, D> void recorridoEnProfundidad(IGraph<V, D> grafo, Comparable<V> sourceCriteria, Consumer<V> consumer) {
         V start = grafo.buscarVertice(sourceCriteria);
         if (start == null) return;
-
-        Set<V> visited = new HashSet<>();
-        dfsUtil(start, grafo, visited, consumer);
+        dfsUtil(start, grafo, new HashSet<>(), consumer);
     }
 
     private <V, D> void dfsUtil(V current, IGraph<V, D> grafo, Set<V> visited, Consumer<V> consumer) {
         visited.add(current);
         consumer.accept(current);
-
         for (Edge<V, D> edge : grafo.adyacencias(grafo.construirComparable(current))) {
             V neighbor = edge.target();
             if (!visited.contains(neighbor)) {
@@ -317,45 +286,45 @@ public class DirectedGraphAlgorithms implements IDirectedGraphAlgorithms {
 
         Set<V> visited = new HashSet<>();
         Queue<V> queue = new LinkedList<>();
-
         visited.add(start);
         queue.add(start);
 
         while (!queue.isEmpty()) {
             V current = queue.poll();
             consumer.accept(current);
-
             for (Edge<V, D> edge : grafo.adyacencias(grafo.construirComparable(current))) {
                 V neighbor = edge.target();
-                if (!visited.contains(neighbor)) {
-                    visited.add(neighbor);
+                if (visited.add(neighbor)) {
                     queue.add(neighbor);
                 }
             }
         }
     }
 
+    // -------------------------------------------------- Clasificación topológica
+
+    /**
+     * Retorna el orden topológico. Si el grafo tiene ciclos no existe orden topológico
+     * y se retorna una lista vacía.
+     */
     @Override
     public <V, D> List<V> calcularClasificacionTopologica(IDirectedIGraph<V, D> grafo) {
-        Stack<V> stack = new Stack<>();
-        Set<V> visited = new HashSet<>();
+        if (grafo.tieneCiclos()) {
+            return Collections.emptyList();
+        }
 
+        Deque<V> stack = new ArrayDeque<>();
+        Set<V> visited = new HashSet<>();
         for (V vertex : grafo.vertices()) {
             if (!visited.contains(vertex)) {
                 topologicalSortUtil(vertex, grafo, visited, stack);
             }
         }
-
-        List<V> topologicalOrder = new ArrayList<>();
-        while (!stack.isEmpty()) {
-            topologicalOrder.add(stack.pop());
-        }
-        return topologicalOrder;
+        return new ArrayList<>(stack); // ArrayDeque usado como pila: itera desde el tope
     }
 
-    private <V, D> void topologicalSortUtil(V vertex, IDirectedIGraph<V, D> grafo, Set<V> visited, Stack<V> stack) {
+    private <V, D> void topologicalSortUtil(V vertex, IDirectedIGraph<V, D> grafo, Set<V> visited, Deque<V> stack) {
         visited.add(vertex);
-
         for (V successor : grafo.successors(grafo.construirComparable(vertex))) {
             if (!visited.contains(successor)) {
                 topologicalSortUtil(successor, grafo, visited, stack);

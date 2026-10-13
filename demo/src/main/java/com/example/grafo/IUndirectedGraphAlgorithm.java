@@ -1,8 +1,8 @@
-package ucu.edu.aed.tda.grafo;
+package grafo;
 
 
-import ucu.edu.aed.tda.grafo.model.edge.Edge;
-import ucu.edu.aed.tda.grafo.model.edge.WeightedEdge;
+import grafo.model.edge.Edge;
+import grafo.model.edge.WeightedEdge;
 
 import java.util.Collection;
 import java.util.function.Consumer;

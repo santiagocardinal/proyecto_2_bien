@@ -1,4 +1,4 @@
-package ucu.edu.aed.tda.grafo.model.edge;
+package grafo.model.edge;
 
 public interface Edge<V, D> {
     V source();

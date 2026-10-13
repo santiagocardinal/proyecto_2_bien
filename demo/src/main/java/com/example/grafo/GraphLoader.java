@@ -1,6 +1,6 @@
-package ucu.edu.aed.tda.grafo;
+package grafo;
 
-import ucu.edu.aed.tda.grafo.model.edge.WeightedEdge;
+import grafo.model.edge.WeightedEdge;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

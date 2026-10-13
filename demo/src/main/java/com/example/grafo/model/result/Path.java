@@ -1,4 +1,4 @@
-package ucu.edu.aed.tda.grafo.model.result;
+package grafo.model.result;
 
 import java.util.List;
 

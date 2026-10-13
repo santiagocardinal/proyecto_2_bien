@@ -1,11 +1,11 @@
-package ucu.edu.aed.tda.grafo;
+package grafo;
 
 
-import ucu.edu.aed.tda.grafo.model.IGraph;
-import ucu.edu.aed.tda.grafo.model.edge.WeightedEdge;
-import ucu.edu.aed.tda.grafo.model.result.IDijkstraResult;
-import ucu.edu.aed.tda.grafo.model.result.IFloydWarshallResult;
-import ucu.edu.aed.tda.grafo.model.result.Path;
+import grafo.model.IGraph;
+import grafo.model.edge.WeightedEdge;
+import grafo.model.result.IDijkstraResult;
+import grafo.model.result.IFloydWarshallResult;
+import grafo.model.result.Path;
 
 import java.util.List;
 import java.util.function.Consumer;

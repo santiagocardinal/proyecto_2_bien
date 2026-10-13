@@ -1,7 +1,7 @@
-package ucu.edu.aed.tda.grafo.model;
+package grafo.model;
 
 
-import ucu.edu.aed.tda.grafo.model.edge.Edge;
+import grafo.model.edge.Edge;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,7 +1,7 @@
-package ucu.edu.aed.tda.grafo;
+package grafo;
 
 
-import ucu.edu.aed.tda.grafo.model.IGraph;
+import grafo.model.IGraph;
 
 public interface IUndirectedGraph<V, D> extends IGraph<V, D> {
 }

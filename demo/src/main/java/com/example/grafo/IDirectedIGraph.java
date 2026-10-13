@@ -1,7 +1,7 @@
-package ucu.edu.aed.tda.grafo;
+package grafo;
 
 
-import ucu.edu.aed.tda.grafo.model.IGraph;
+import grafo.model.IGraph;
 
 import java.util.Set;
 
