@@ -1,4 +1,4 @@
-package grafo.model.result;
+package com.example.grafo.model.result;
 
 import java.util.Collections;
 import java.util.List;

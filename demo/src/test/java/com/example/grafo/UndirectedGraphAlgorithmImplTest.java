@@ -1,14 +1,13 @@
-package grafo;
+package com.example.grafo;
 
-import grafo.model.edge.WeightedEdge;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.example.grafo.model.edge.Edge;
+import com.example.grafo.model.edge.WeightedEdge;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class UndirectedGraphAlgorithmImplTest {
 
@@ -19,7 +18,7 @@ public class UndirectedGraphAlgorithmImplTest {
     private GrafoNoDirigido<String, WeightedEdge> grafo;
     private UndirectedGraphAlgorithmImpl algoritmos;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         grafo = new GrafoNoDirigido<>();
         algoritmos = new UndirectedGraphAlgorithmImpl();
@@ -37,7 +36,7 @@ public class UndirectedGraphAlgorithmImplTest {
 
     private double costoTotal(IUndirectedGraph<String, WeightedEdge> g) {
         double total = 0;
-        for (var arista : g.aristas()) {
+        for (Edge<String, WeightedEdge> arista : g.aristas()) {
             total += arista.dato().getWeight();
         }
         return total;
@@ -49,7 +48,7 @@ public class UndirectedGraphAlgorithmImplTest {
 
         // con 4 vertices el arbol tiene 3 aristas
         assertEquals(3, arbol.cantidadDeAristas());
-        assertEquals(7.0, costoTotal(arbol));
+        assertEquals(7.0, costoTotal(arbol), 0.001);
         assertFalse(arbol.tieneCiclos());
     }
 
@@ -59,13 +58,13 @@ public class UndirectedGraphAlgorithmImplTest {
 
         assertEquals(3, arbol.cantidadDeAristas());
         // tiene que dar lo mismo que kruskal
-        assertEquals(7.0, costoTotal(arbol));
+        assertEquals(7.0, costoTotal(arbol), 0.001);
     }
 
     @Test
     public void SearchMinEdgetest() {
-        var arista = algoritmos.searchMinEdge(grafo, List.of("3"), List.of("1", "2", "4"));
-        assertEquals(2.0, arista.dato().getWeight());
+        Edge<String, WeightedEdge> arista = algoritmos.searchMinEdge(grafo, List.of("3"), List.of("1", "2", "4"));
+        assertEquals(2.0, arista.dato().getWeight(), 0.001);
     }
 
 }

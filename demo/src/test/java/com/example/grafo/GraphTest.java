@@ -1,22 +1,18 @@
-package grafo;
+package com.example.grafo;
 
-import grafo.model.edge.Edge;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.example.grafo.model.edge.Edge;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class GraphTest {
 
     private Graph<String, Integer> grafo;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         grafo = new Graph<>();
         grafo.agregarVertice("A");

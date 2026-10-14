@@ -1,7 +1,7 @@
-package grafo;
+package com.example.grafo;
 
-import grafo.model.edge.Edge;
-import grafo.model.edge.WeightedEdge;
+import com.example.grafo.model.edge.Edge;
+import com.example.grafo.model.edge.WeightedEdge;
 
 import java.util.*;
 import java.util.function.Consumer;

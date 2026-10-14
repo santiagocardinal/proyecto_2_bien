@@ -1,8 +1,8 @@
-package grafo;
+package com.example.grafo;
 
-import grafo.model.IGraph;
-import grafo.model.edge.Edge;
-import grafo.model.edge.UndirectedEdge;
+import com.example.grafo.model.IGraph;
+import com.example.grafo.model.edge.Edge;
+import com.example.grafo.model.edge.UndirectedEdge;
 
 import java.util.*;
 

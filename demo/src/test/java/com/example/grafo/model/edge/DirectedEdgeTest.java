@@ -1,20 +1,18 @@
-package grafo.model.edge;
+package com.example.grafo.model.edge;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class DirectedEdgeTest {
 
     @Test
-    public void CrearArista() {
+    public void CrearAristatest() {
         DirectedEdge<String, Integer> arista = new DirectedEdge<>("A", "B", 5);
 
         assertEquals("A", arista.source());
         assertEquals("B", arista.target());
-        assertEquals(5, arista.dato());
+        assertEquals(5, (int) arista.dato());
     }
 
     @Test
@@ -36,8 +34,9 @@ public class DirectedEdgeTest {
         assertNotEquals(a1, a2);
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void OrigenNulotest() {
-        assertThrows(NullPointerException.class, () -> new DirectedEdge<>(null, "B", 1));
+        // con origen null tiene que tirar excepcion
+        new DirectedEdge<>(null, "B", 1);
     }
 }

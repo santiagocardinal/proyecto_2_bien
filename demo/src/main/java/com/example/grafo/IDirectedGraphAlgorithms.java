@@ -1,11 +1,11 @@
-package grafo;
+package com.example.grafo;
 
 
-import grafo.model.IGraph;
-import grafo.model.edge.WeightedEdge;
-import grafo.model.result.IDijkstraResult;
-import grafo.model.result.IFloydWarshallResult;
-import grafo.model.result.Path;
+import com.example.grafo.model.IGraph;
+import com.example.grafo.model.edge.WeightedEdge;
+import com.example.grafo.model.result.IDijkstraResult;
+import com.example.grafo.model.result.IFloydWarshallResult;
+import com.example.grafo.model.result.Path;
 
 import java.util.List;
 import java.util.function.Consumer;

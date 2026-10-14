@@ -1,7 +1,7 @@
-package grafo.model;
+package com.example.grafo.model;
 
 
-import grafo.model.edge.Edge;
+import com.example.grafo.model.edge.Edge;
 
 import java.util.Collection;
 import java.util.List;

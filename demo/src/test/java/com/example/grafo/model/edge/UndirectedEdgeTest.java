@@ -1,11 +1,8 @@
-package grafo.model.edge;
+package com.example.grafo.model.edge;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class UndirectedEdgeTest {
 
@@ -15,7 +12,7 @@ public class UndirectedEdgeTest {
 
         assertEquals("A", arista.source());
         assertEquals("B", arista.target());
-        assertEquals(3, arista.dato());
+        assertEquals(3, (int) arista.dato());
         assertFalse(arista.directed());
     }
 

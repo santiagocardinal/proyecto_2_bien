@@ -1,14 +1,12 @@
-package grafo.model.result;
+package com.example.grafo.model.result;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class DijkstraResultTest {
 
@@ -23,7 +21,7 @@ public class DijkstraResultTest {
 
         DijkstraResult<String> resultado = new DijkstraResult<>(costos, caminos);
 
-        assertEquals(4.0, resultado.getCost("B"));
+        assertEquals(4.0, resultado.getCost("B"), 0.001);
         assertEquals(List.of("A", "B"), resultado.getPath("B"));
     }
 
@@ -32,7 +30,7 @@ public class DijkstraResultTest {
         DijkstraResult<String> resultado = new DijkstraResult<>(new HashMap<>(), new HashMap<>());
 
         // si no esta el vertice tiene que dar infinito y camino vacio
-        assertEquals(Double.POSITIVE_INFINITY, resultado.getCost("Z"));
+        assertEquals(Double.POSITIVE_INFINITY, resultado.getCost("Z"), 0.001);
         assertTrue(resultado.getPath("Z").isEmpty());
     }
 }

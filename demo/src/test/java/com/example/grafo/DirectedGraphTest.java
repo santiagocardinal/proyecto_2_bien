@@ -1,20 +1,17 @@
-package grafo;
+package com.example.grafo;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class DirectedGraphTest {
 
     private DirectedGraph<String, Integer> grafo;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         grafo = new DirectedGraph<>();
         grafo.agregarVertice("A");
@@ -41,7 +38,7 @@ public class DirectedGraphTest {
     @Test
     public void ObtenerAristatest() {
         grafo.agregarArista("A", "C", 8);
-        assertEquals(8, grafo.obtenerArista("A", "C").dato());
+        assertEquals(8, (int) grafo.obtenerArista("A", "C").dato());
     }
 
     @Test

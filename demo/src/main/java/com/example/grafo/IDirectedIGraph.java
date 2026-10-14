@@ -1,7 +1,7 @@
-package grafo;
+package com.example.grafo;
 
 
-import grafo.model.IGraph;
+import com.example.grafo.model.IGraph;
 
 import java.util.Set;
 

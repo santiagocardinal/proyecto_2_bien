@@ -1,4 +1,4 @@
-package grafo.model.edge;
+package com.example.grafo.model.edge;
 
 public class WeightedEdge {
     private final double weight;

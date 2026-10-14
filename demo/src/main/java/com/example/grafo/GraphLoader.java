@@ -1,6 +1,6 @@
-package grafo;
+package com.example.grafo;
 
-import grafo.model.edge.WeightedEdge;
+import com.example.grafo.model.edge.WeightedEdge;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

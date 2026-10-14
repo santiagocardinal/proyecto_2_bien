@@ -1,4 +1,4 @@
-package grafo.model.edge;
+package com.example.grafo.model.edge;
 
 import java.util.Objects;
 

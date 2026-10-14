@@ -1,15 +1,12 @@
-package grafo.model.result;
+package com.example.grafo.model.result;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class FloydWarshallResultTest {
 
@@ -25,7 +22,7 @@ public class FloydWarshallResultTest {
 
         FloydWarshallResult<String> resultado = new FloydWarshallResult<>(costos, caminos);
 
-        assertEquals(2.0, resultado.getCost("A", "B"));
+        assertEquals(2.0, resultado.getCost("A", "B"), 0.001);
         assertEquals(List.of("A", "B"), resultado.getPath("A", "B"));
         assertTrue(resultado.connected("A", "B"));
     }

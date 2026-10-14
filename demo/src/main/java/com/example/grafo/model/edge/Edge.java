@@ -1,4 +1,4 @@
-package grafo.model.edge;
+package com.example.grafo.model.edge;
 
 public interface Edge<V, D> {
     V source();
