@@ -2,13 +2,14 @@ package com.example;
 
 import java.util.*;
 
+import com.example.entorno.Usuario;
 import com.example.grafo.IDirectedIGraph;
 
 public class ServicioAnalisisRed<D> {
 
     private IDirectedIGraph<Usuario, D> grafoSeguidores;
 
-    public ServicioAnalisisRed(IDirectedIGraph<String, D> grafoSeguidores) {
+    public ServicioAnalisisRed(IDirectedIGraph<Usuario, D> grafoSeguidores) {
         this.grafoSeguidores = grafoSeguidores;
     }
 
