@@ -1,6 +1,7 @@
 package com.example.modelo;
 
 import java.time.LocalDateTime;
+import com.example.entorno.*;
 
 public class Comentario {
     private String id;
@@ -14,7 +15,7 @@ public class Comentario {
         this.contenido = contenido;
         this.autor = autor;
         this.posteo = posteo;
-        this.fecha = LocalDateTime.now(); // Toma automáticamente la fecha y hora de la publicación
+        this.fecha = LocalDateTime.now();
     }
 
     public String getId() {

@@ -1,5 +1,7 @@
 package com.example.modelo;
 
+import com.example.entorno.*;
+
 public class Mencion {
     private Posteo posteo;
     private Usuario usuarioMencionado;

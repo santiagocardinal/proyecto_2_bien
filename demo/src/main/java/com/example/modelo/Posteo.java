@@ -1,5 +1,7 @@
 package com.example.modelo;
 
+import com.example.entorno.Usuario;
+
 public class Posteo {
     private String id;
     private String contenido;
