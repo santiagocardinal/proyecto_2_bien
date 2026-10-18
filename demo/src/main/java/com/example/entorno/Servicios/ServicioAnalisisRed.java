@@ -1,4 +1,4 @@
-package com.example;
+package com.example.entorno.Servicios;
 
 import java.util.*;
 
@@ -13,17 +13,16 @@ public class ServicioAnalisisRed<D> {
         this.grafoSeguidores = grafoSeguidores;
     }
 
-//-----------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
 
-   public Map<Usuario, Integer> calcularInfluencia() {
+    public Map<Usuario, Integer> calcularInfluencia() {
 
         Map<Usuario, Integer> influencia = new HashMap<>();
 
         for (Usuario usuario : grafoSeguidores.vertices()) {
 
             int seguidores = grafoSeguidores.predecessors(
-                grafoSeguidores.construirComparable(usuario)
-            ).size();
+                    grafoSeguidores.construirComparable(usuario)).size();
 
             influencia.put(usuario, seguidores);
         }
@@ -31,8 +30,8 @@ public class ServicioAnalisisRed<D> {
         return influencia;
     }
 
-//-----------------------------------------------------------------------------------------------------------------
-    //Algoritmo de Kosaraju
+    // -----------------------------------------------------------------------------------------------------------------
+    // Algoritmo de Kosaraju
     public List<Set<Usuario>> detectarComunidades() {
 
         Set<Usuario> visitados = new HashSet<>();
@@ -91,7 +90,7 @@ public class ServicioAnalisisRed<D> {
         }
     }
 
-//-----------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
 
     public Set<Usuario> identificarUsuariosPuente() {
 
@@ -116,7 +115,7 @@ public class ServicioAnalisisRed<D> {
         Map<Usuario, Integer> descubrimiento = new HashMap<>();
         Map<Usuario, Integer> low = new HashMap<>();
 
-        int[] tiempo = {0};
+        int[] tiempo = { 0 };
 
         // Explorar todas las componentes del grafo
         for (Usuario usuario : grafoSeguidores.vertices()) {
@@ -129,7 +128,7 @@ public class ServicioAnalisisRed<D> {
         return puentes;
     }
 
-        private void dfsPuentes(Usuario actual, Usuario padre, Map<Usuario, Set<Usuario>> vecinos, Set<Usuario> visitados,
+    private void dfsPuentes(Usuario actual, Usuario padre, Map<Usuario, Set<Usuario>> vecinos, Set<Usuario> visitados,
             Set<Usuario> puentes, Map<Usuario, Integer> descubrimiento, Map<Usuario, Integer> low, int[] tiempo) {
 
         visitados.add(actual);
@@ -156,7 +155,7 @@ public class ServicioAnalisisRed<D> {
 
             } else if (!vecino.equals(padre)) {
 
-                low.put(actual, Math.min(low.get(actual),descubrimiento.get(vecino)));
+                low.put(actual, Math.min(low.get(actual), descubrimiento.get(vecino)));
             }
         }
 

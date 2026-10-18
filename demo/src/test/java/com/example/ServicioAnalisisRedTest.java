@@ -2,6 +2,7 @@
 package com.example;
 
 import com.example.entorno.Usuario;
+import com.example.entorno.Servicios.ServicioAnalisisRed;
 import com.example.grafo.DirectedGraph;
 import com.example.grafo.IDirectedIGraph;
 
@@ -86,8 +87,7 @@ public class ServicioAnalisisRedTest {
         seguir(diego, bruno);
         seguir(ana, carlos);
 
-        Map<Usuario, Integer> resultado =
-                servicio.calcularInfluencia();
+        Map<Usuario, Integer> resultado = servicio.calcularInfluencia();
 
         assertEquals(4, resultado.size());
 
@@ -194,11 +194,9 @@ public class ServicioAnalisisRedTest {
         seguir(ana, bruno);
         seguir(bruno, carlos);
 
-        List<Set<Usuario>> resultado =
-                servicio.detectarComunidades();
+        List<Set<Usuario>> resultado = servicio.detectarComunidades();
 
-        Set<Set<Usuario>> esperado = Set.of(Set.of(ana), Set.of(bruno), Set.of(carlos)
-        );
+        Set<Set<Usuario>> esperado = Set.of(Set.of(ana), Set.of(bruno), Set.of(carlos));
 
         assertEquals(esperado, new HashSet<>(resultado));
     }
