@@ -65,7 +65,7 @@ public class ServicioPublicaciones {
                 if (contenido.contains("@" + u.getNombreUsuario())) {
                     Mencion mencion = new Mencion(nuevoPosteo, u);
                     this.menciones.add(mencion);
-
+                    nuevoPosteo.agregarMencion(u);          // <- AGREGO UNA NUEVA LINEA
                     sumarInteraccion(autor, u);
                 }
             }
@@ -84,7 +84,7 @@ public class ServicioPublicaciones {
 
         Comentario nuevoComentario = new Comentario(idComentario, contenido, autor, posteo);
         this.comentarios.add(nuevoComentario);
-
+        posteo.agregarComentario(nuevoComentario);          // <- AGREGO
         sumarInteraccion(autor, posteo.getAutor());
 
         if (todosLosUsuarios != null) {
@@ -92,7 +92,7 @@ public class ServicioPublicaciones {
                 if (contenido.contains("@" + u.getNombreUsuario())) {
                     Mencion mencion = new Mencion(posteo, u);
                     this.menciones.add(mencion);
-
+                    posteo.agregarMencion(u);               // <-AGERGO
                     sumarInteraccion(autor, u);
                 }
             }

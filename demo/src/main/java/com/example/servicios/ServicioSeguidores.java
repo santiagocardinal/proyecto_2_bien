@@ -7,9 +7,14 @@ import java.util.Set;
 import com.example.grafo.DirectedGraph;
 import com.example.modelo.Usuario;
 
+//AGREGO YO, LO DISCUTIMOS DESPUES
+import com.example.grafo.model.edge.WeightedEdge;
+
 public class ServicioSeguidores
 {
-    private final DirectedGraph<Usuario, Object> grafoSeguidores;
+    //CAMBIO:     private final DirectedGraph<Usuario, Object> grafoSeguidores;
+    //POR ESTO:
+    private final DirectedGraph<Usuario, WeightedEdge> grafoSeguidores;
 
     public ServicioSeguidores() 
     {
@@ -37,6 +42,9 @@ public class ServicioSeguidores
         //antes se necesita si o si, obviamente, agregar los vertices
         grafoSeguidores.agregarVertice(primero);
         grafoSeguidores.agregarVertice(segundo);
+        //AGREGO LO DE ABAJO
+        grafoSeguidores.agregarArista(primero, segundo, new WeightedEdge(1.0));
+
 
         boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
 
@@ -58,14 +66,20 @@ public class ServicioSeguidores
         {
             throw new IllegalArgumentException("El segundo usuario no puede ser nulo");
         }
+        
+        //AGREGO LO DE ABAJO
+        grafoSeguidores.eliminarArista(primero, segundo);
 
+        //SACO
+        /* 
         boolean desagregado = grafoSeguidores.eliminarArista(primero, segundo);
 
         if (desagregado)
         {
             primero.setCantidadSeguidos(primero.getCantidadSeguidos() - 1);
             segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() - 1);
-        }
+
+        }*/
     }
 
     public List<Usuario> obtenerSeguidores(Usuario usuario)
@@ -108,5 +122,21 @@ public class ServicioSeguidores
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
         return obtenerSeguidos(usuario).size();
+    }
+    //AGREGO YO, LO DISCUTIMOS DESPUES
+    //===============================================================================================
+       
+    public void agregarUsuario(Usuario usuario)
+    {
+        if (usuario == null)
+        {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
+        grafoSeguidores.agregarVertice(usuario);
+    }
+
+    public DirectedGraph<Usuario, WeightedEdge> getGrafoSeguidores()
+    {
+        return grafoSeguidores;
     }
 }
