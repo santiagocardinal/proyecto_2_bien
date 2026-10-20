@@ -83,4 +83,9 @@ public class Usuario implements Comparable<Usuario>
         }
         return this.nombreUsuario.compareTo(otro.nombreUsuario);
     }
+    
+    @Override
+    public String toString() {
+        return "@" + nombreUsuario;
+    }
 }
