@@ -1,5 +1,6 @@
 package com.example.plataforma;
 
+import com.example.grafo.IUndirectedGraph;
 import com.example.grafo.model.edge.WeightedEdge;
 import com.example.modelo.Comentario;
 import com.example.modelo.Posteo;
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 public class PlataformaRedSocial {
 
@@ -194,5 +196,59 @@ public class PlataformaRedSocial {
         if (posteo == null || !posteos.containsKey(posteo.getId())) {
             throw new IllegalArgumentException("El posteo no está registrado");
         }
+    }
+        // =====================================================================
+    // CONSULTAS PROPIAS DEL GRUPO
+    // Cada una usa un algoritmo distinto de la biblioteca de grafos.
+    // =====================================================================
+
+    /**
+     * Consulta 1 - Camino de difusion.
+     * ¿Por donde le llego este posteo a este usuario?
+     * Algoritmo: Dijkstra. Implementada en ServicioDifusion.
+     */
+    public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
+        validarPosteo(posteo);
+        validarUsuario(destino);
+        return servicioDifusion.caminoDeDifusion(posteo, destino);
+    }
+
+    /**
+     * Consulta 2 - Audiencia potencial.
+     * ¿A quienes podria llegar lo que publica este usuario si todos compartieran?
+     * Algoritmo: Warshall. Implementada en ServicioDifusion.
+     */
+    public Set<Usuario> audienciaPotencial(Usuario usuario) {
+        validarUsuario(usuario);
+        return servicioDifusion.audienciaPotencial(usuario);
+    }
+
+    /**
+     * Consulta 3 - Centro de cada comunidad.
+     * ¿Quien es el usuario mas cercano a todos dentro de su grupo?
+     * Algoritmo: Kosaraju + centro del grafo (Floyd). Implementada en ServicioAnalisisRed.
+     */
+    public Map<Set<Usuario>, Usuario> centrosDeComunidades() {
+        return servicioAnalisisRed.centrosDeComunidades();
+    }
+
+    /**
+     * Consulta 4 - Red de vinculos mas fuertes.
+     * ¿Cual es el minimo de relaciones que conecta a todos, con mas interaccion?
+     * Algoritmo: Kruskal. Implementada en ServicioPublicaciones.
+     */
+    public IUndirectedGraph<Usuario, WeightedEdge> redDeVinculosFuertes() {
+        return servicioPublicaciones.redDeVinculosFuertes();
+    }
+
+    /**
+     * Consulta 5 - Cadenas de contacto.
+     * ¿De cuantas formas distintas se puede llegar de un usuario a otro?
+     * Algoritmo: todos los caminos (DFS con backtracking). Implementada en ServicioSugerencias.
+     */
+    public List<List<Usuario>> cadenasDeContacto(Usuario origen, Usuario destino) {
+        validarUsuario(origen);
+        validarUsuario(destino);
+        return servicioSugerencias.cadenasDeContacto(origen, destino);
     }
 }
