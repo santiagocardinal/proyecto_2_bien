@@ -14,6 +14,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+//PARA LA CONSULTA 1 Y 2 NECESITO ESTOS IMPORTS:
+import com.example.grafo.model.result.IDijkstraResult;
+import com.example.grafo.model.result.IFloydWarshallResult;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ServicioDifusion {
 
     private final ServicioSeguidores servicioSeguidores;
@@ -111,5 +117,60 @@ public class ServicioDifusion {
 
     public boolean leLlega(Usuario usuario, Posteo posteo) {
         return posteo.getAutor().equals(usuario) || calcularAlcance(posteo).contains(usuario);
+    }
+
+    
+    // =====================================================================
+    // CONSULTA PROPIA 1: Camino de difusion
+    // =====================================================================
+
+    /**
+     * Devuelve por donde le llego un posteo a un usuario.
+     * Ejemplo: [@ana, @fede, @eva] significa que ana lo publico,
+     * fede lo compartio y asi le llego a eva.
+     * Usa Dijkstra sobre el grafo de difusion del posteo. Como todas las
+     * aristas pesan 1, el camino mas barato es el de menos pasos.
+     * Si el posteo no le llego, devuelve una lista vacia.
+     * Complejidad: O((V + E) log V).
+     */
+    public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
+        // Armamos el grafo de difusion de este posteo (quien se lo paso a quien)
+        DirectedGraph<Usuario, WeightedEdge> grafo = construirGrafoDifusion(posteo);
+
+        // Dijkstra desde el autor: calcula el camino mas corto a cada usuario
+        IDijkstraResult<Usuario> resultado = algoritmos.dijkstra(posteo.getAutor(), grafo);
+
+        // Pedimos el camino hasta el destino (vacio si no hay camino)
+        return new ArrayList<>(resultado.getPath(destino));
+    }
+
+    // =====================================================================
+    // CONSULTA PROPIA 2: Audiencia potencial
+    // =====================================================================
+
+    /**
+     * Devuelve todos los usuarios a los que podria llegar lo que publica
+     * un usuario, si en cada paso alguien lo compartiera.
+     * Un usuario w es audiencia potencial de u si hay una cadena de
+     * seguidores w -> ... -> u (w sigue a alguien, que sigue a alguien... que sigue a u).
+     * Usa Warshall (cerradura transitiva) sobre el grafo de seguidores.
+     * Complejidad: O(V^3).
+     */
+    public Set<Usuario> audienciaPotencial(Usuario usuario) {
+        DirectedGraph<Usuario, WeightedEdge> grafoSeguidores = servicioSeguidores.getGrafoSeguidores();
+
+        // Warshall calcula, para cada par (w, u), si existe un camino de w a u
+        IFloydWarshallResult<Usuario> cierre = algoritmos.warshall(grafoSeguidores);
+
+        Set<Usuario> audiencia = new HashSet<>();
+
+        // Recorremos todos los usuarios de la red
+        for (Usuario otro : grafoSeguidores.vertices()) {
+            // Si hay camino de "otro" hasta el usuario, el contenido le puede llegar
+            if (!otro.equals(usuario) && cierre.connected(otro, usuario)) {
+                audiencia.add(otro);
+            }
+        }
+        return audiencia;
     }
 }

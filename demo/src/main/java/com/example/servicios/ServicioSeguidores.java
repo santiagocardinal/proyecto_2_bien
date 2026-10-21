@@ -42,17 +42,18 @@ public class ServicioSeguidores
         //antes se necesita si o si, obviamente, agregar los vertices
         grafoSeguidores.agregarVertice(primero);
         grafoSeguidores.agregarVertice(segundo);
+        
         //AGREGO LO DE ABAJO
         grafoSeguidores.agregarArista(primero, segundo, new WeightedEdge(1.0));
-
-
-        boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
+        //Tengo que sacar esto
+        /*boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
 
         if (agregado)
         {
             primero.setCantidadSeguidos(primero.getCantidadSeguidos() + 1);
             segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() + 1);
-        }
+        }*/
+       
     }
 
     public void dejarDeSeguir(Usuario primero, Usuario segundo)

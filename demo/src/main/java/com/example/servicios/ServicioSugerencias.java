@@ -10,6 +10,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.example.modelo.Usuario;
+//IMPORTS QUE NECESITO PARA LA CONSULTA 5
+import com.example.grafo.DirectedGraphAlgorithms;
+import com.example.grafo.model.result.Path;
+
 
 public class ServicioSugerencias 
 {
@@ -96,5 +100,30 @@ public class ServicioSugerencias
             }
         }
         return new ArrayList<>(sugerenciasSet);
+    }
+        // =====================================================================
+    // CONSULTA PROPIA 5: Cadenas de contacto
+    // =====================================================================
+
+    /**
+     * Devuelve todas las formas distintas de llegar de un usuario a otro
+     * siguiendo la relacion "sigue a", sin repetir usuarios.
+     * Complementa a gradosDeSeparacion: aquel da el camino mas corto,
+     * esta consulta da todos.
+     * Usa "todos los caminos" de la biblioteca (DFS con backtracking).
+     * Complejidad: exponencial en el peor caso, solo apta para redes chicas.
+     */
+    public List<List<Usuario>> cadenasDeContacto(Usuario origen, Usuario destino) {
+        DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
+
+        // La biblioteca devuelve cada camino con su costo
+        List<Path<Usuario>> caminos = algoritmos.obtenerTodosLosCaminos(origen, destino, servicioSeguidores.getGrafoSeguidores());
+
+        // Nos quedamos solo con la lista de usuarios de cada camino
+        List<List<Usuario>> cadenas = new ArrayList<>();
+        for (Path<Usuario> camino : caminos) {
+            cadenas.add(camino.getPath());
+        }
+        return cadenas;
     }
 }

@@ -5,6 +5,11 @@ import java.util.*;
 import com.example.grafo.IDirectedIGraph;
 import com.example.modelo.Usuario;
 
+//IMPORTAS PARA REALIZAR LA CONSULTA 3
+import com.example.grafo.DirectedGraph;
+import com.example.grafo.DirectedGraphAlgorithms;
+import com.example.grafo.model.edge.WeightedEdge;
+
 public class ServicioAnalisisRed<D> {
 
     private IDirectedIGraph<Usuario, D> grafoSeguidores;
@@ -163,6 +168,52 @@ public class ServicioAnalisisRed<D> {
         if (padre == null && hijos > 1) {
             puentes.add(actual);
         }
+    }
+
+        // =====================================================================
+    // CONSULTA PROPIA 3: Centro de cada comunidad
+    // =====================================================================
+
+    /**
+     * Devuelve, para cada comunidad, su usuario mas "central": aquel al que
+     * todos los demas de su grupo llegan en la menor cantidad de pasos
+     * (el de menor excentricidad).
+     * Se calcula por comunidad porque el centro solo tiene sentido si todos
+     * se pueden alcanzar entre si, y eso pasa dentro de una comunidad
+     * (componente fuertemente conexa), no en toda la red.
+     * Usa las comunidades de detectarComunidades (Kosaraju) y el centro del
+     * grafo de la biblioteca (que usa Floyd).
+     * Complejidad: O(V + E) para las comunidades + O(k^3) por comunidad de k usuarios.
+     */
+    public Map<Set<Usuario>, Usuario> centrosDeComunidades() {
+        Map<Set<Usuario>, Usuario> centros = new LinkedHashMap<>();
+
+        // Para cada comunidad detectada, calculamos su centro
+        for (Set<Usuario> comunidad : detectarComunidades()) {
+            centros.put(comunidad, centroDeComunidad(comunidad));
+        }
+        return centros;
+    }
+
+    private Usuario centroDeComunidad(Set<Usuario> comunidad) {
+        // Armamos un grafo solo con los usuarios de la comunidad
+        DirectedGraph<Usuario, WeightedEdge> subgrafo = new DirectedGraph<>();
+        for (Usuario u : comunidad) {
+            subgrafo.agregarVertice(u);
+        }
+
+        // Copiamos los seguimientos que quedan dentro de la comunidad
+        for (Usuario u : comunidad) {
+            for (Usuario seguido : grafoSeguidores.successors(grafoSeguidores.construirComparable(u))) {
+                if (comunidad.contains(seguido)) {
+                    subgrafo.agregarArista(u, seguido, new WeightedEdge(1.0));
+                }
+            }
+        }
+
+        // La biblioteca calcula el vertice de menor excentricidad
+        DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
+        return algoritmos.obtenerCentroGrafo(subgrafo);
     }
 
 }

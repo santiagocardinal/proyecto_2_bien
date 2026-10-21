@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.example.grafo.model.edge.Edge;
+import com.example.grafo.model.edge.WeightedEdge;
 import com.example.modelo.Posteo;
 import com.example.modelo.Usuario;
 import com.example.plataforma.PlataformaRedSocial;
@@ -159,5 +161,85 @@ public class App {
         for (Usuario puente : red.identificarUsuariosPuente()) {
             System.out.println("  - " + puente);
         }
+                // ------------------------------------------------------------
+        System.out.println("\n8. Consultas propias\n======================================================================");
+        // ------------------------------------------------------------
+
+        // --- Consulta 1 ---
+        consulta(1, "Camino de difusion", "Por donde le llego el posteo de ana a cada usuario?");
+        for (Usuario u : red.calcularAlcance(p1)) {
+            List<Usuario> camino = red.caminoDeDifusion(p1, u);
+            int pasos = camino.size() - 1;
+            System.out.println("  " + u + " (" + pasos + " " + (pasos == 1 ? "paso" : "pasos") + "):  " + formatearCamino(camino));
+        }
+        if (red.caminoDeDifusion(p1, gabi).isEmpty()) {
+            System.out.println("  " + gabi + ":  no le llego");
+        }
+
+        // --- Consulta 2 ---
+        consulta(2, "Audiencia potencial", "A cuantos usuarios podria llegar lo que publica cada uno?");
+        mostrarAudiencia(red, ana);
+        mostrarAudiencia(red, eva);
+
+        // --- Consulta 3 ---
+        consulta(3, "Centro de cada comunidad", "Quien es el usuario mas cercano a todos en su grupo?");
+        int numeroComunidad = 1;
+        for (Map.Entry<Set<Usuario>, Usuario> entrada : red.centrosDeComunidades().entrySet()) {
+            System.out.println("  Comunidad " + numeroComunidad + ": centro " + entrada.getValue() + "   (integrantes: " + entrada.getKey() + ")");
+            numeroComunidad++;
+        }
+
+        // --- Consulta 4 ---
+        consulta(4, "Red de vinculos mas fuertes", "Que relaciones conectan a todos con la mayor interaccion?");
+        for (Edge<Usuario, WeightedEdge> vinculo : red.redDeVinculosFuertes().aristas()) {
+            // El peso es 1 / interacciones, asi que lo invertimos para mostrarlo
+            long interacciones = Math.round(1 / vinculo.dato().getWeight());
+            String palabra = (interacciones == 1) ? "interaccion" : "interacciones";
+            System.out.println("  " + vinculo.source() + " <-> " + vinculo.target() + "   " + interacciones + " " + palabra);
+        }
+
+        // --- Consulta 5 ---
+        consulta(5, "Cadenas de contacto", "De cuantas formas se puede llegar de un usuario a otro?");
+        mostrarCadenas(red, ana, eva);
+        mostrarCadenas(red, eva, ana);
     }
+    
+    // Imprime el encabezado de una consulta: numero, nombre y la pregunta que responde
+    private static void consulta(int numero, String nombre, String pregunta) {
+        System.out.println();
+        System.out.println("[Consulta " + numero + "] " + nombre);
+        System.out.println("  " + pregunta);
+        System.out.println("  ----------------------------------------------------------------");
+    }
+
+    // Convierte [ana, fede, eva] en "@ana -> @fede -> @eva"
+    private static String formatearCamino(List<Usuario> camino) {
+        String texto = "";
+        for (int i = 0; i < camino.size(); i++) {
+            texto += camino.get(i);
+            // La flecha va entre usuarios, no despues del ultimo
+            if (i < camino.size() - 1) {
+                texto += " -> ";
+            }
+        }
+        return texto;
+    }
+
+    private static void mostrarAudiencia(PlataformaRedSocial red, Usuario usuario) {
+        Set<Usuario> audiencia = red.audienciaPotencial(usuario);
+        System.out.println("  " + usuario + ": " + audiencia.size() + " usuarios   " + audiencia);
+    }
+
+    private static void mostrarCadenas(PlataformaRedSocial red, Usuario origen, Usuario destino) {
+        List<List<Usuario>> cadenas = red.cadenasDeContacto(origen, destino);
+        if (cadenas.isEmpty()) {
+            System.out.println("  De " + origen + " a " + destino + ":  no hay ninguna cadena");
+            return;
+        }
+        System.out.println("  De " + origen + " a " + destino + ":  " + cadenas.size() + " cadena(s)");
+        for (List<Usuario> cadena : cadenas) {
+            System.out.println("     " + formatearCamino(cadena));
+        }
+    }
+    
 }

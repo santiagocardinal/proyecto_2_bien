@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+//IMPORTS QUE NECESITO PARA LA CONSULTA 4
+import com.example.grafo.Graph;
+import com.example.grafo.IUndirectedGraph;
+import com.example.grafo.UndirectedGraphAlgorithmImpl;
+import com.example.grafo.model.edge.WeightedEdge;
+
 public class ServicioPublicaciones {
 
     private final DirectedGraph<Usuario, Integer> grafoInteracciones;
@@ -195,5 +201,54 @@ public class ServicioPublicaciones {
             }
         }
         return false;
+    }
+        // =====================================================================
+    // CONSULTA PROPIA 4: Red de vinculos mas fuertes
+    // =====================================================================
+
+    /**
+     * Graph (de la biblioteca) es no dirigido pero no implementa IUndirectedGraph,
+     * y Kruskal pide un IUndirectedGraph. Esta clase hereda todo de Graph
+     * y solo le agrega ese tipo, sin modificar la biblioteca.
+     */
+    private static class GrafoNoDirigido<V, D> extends Graph<V, D> implements IUndirectedGraph<V, D> {
+    }
+
+    /**
+     * Devuelve el conjunto minimo de relaciones que mantiene conectados a
+     * los usuarios que interactuaron, quedandose con las de mas interaccion.
+     * Se arma un grafo NO dirigido de interacciones (no importa quien
+     * comento a quien, sino que hubo contacto) con peso 1 / interacciones:
+     * mientras mas interaccion, menor el peso. Kruskal busca el arbol de
+     * menor peso total, asi que elige los vinculos mas fuertes.
+     * Complejidad: O(E log E).
+     */
+    public IUndirectedGraph<Usuario, WeightedEdge> redDeVinculosFuertes() {
+        GrafoNoDirigido<Usuario, WeightedEdge> noDirigido = new GrafoNoDirigido<>();
+
+        // Mismos usuarios que el grafo de interacciones
+        for (Usuario u : grafoInteracciones.vertices()) {
+            noDirigido.agregarVertice(u);
+        }
+
+        // Pasamos cada interaccion u -> v a una arista u - v
+        for (Edge<Usuario, Integer> arista : grafoInteracciones.aristas()) {
+            Usuario u = arista.source();
+            Usuario v = arista.target();
+            int total = arista.dato();
+
+            // Si tambien hay interaccion v -> u, las sumamos (es el mismo vinculo)
+            Edge<Usuario, Integer> vuelta = grafoInteracciones.obtenerArista(v, u);
+            if (vuelta != null) {
+                total += vuelta.dato();
+            }
+
+            // Mas interacciones = menor peso
+            noDirigido.agregarArista(u, v, new WeightedEdge(1.0 / total));
+        }
+
+        // Kruskal devuelve el arbol (o bosque) de menor peso total
+        UndirectedGraphAlgorithmImpl algoritmos = new UndirectedGraphAlgorithmImpl();
+        return algoritmos.kruskal(noDirigido);
     }
 }
