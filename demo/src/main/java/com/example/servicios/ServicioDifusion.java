@@ -2,22 +2,20 @@ package com.example.servicios;
 
 import com.example.grafo.DirectedGraph;
 import com.example.grafo.DirectedGraphAlgorithms;
-import com.example.grafo.model.edge.WeightedEdge;
 import com.example.modelo.Mencion;
 import com.example.modelo.Posteo;
 import com.example.modelo.Usuario;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-//PARA LA CONSULTA 1 Y 2 NECESITO ESTOS IMPORTS:
-import com.example.grafo.model.result.IDijkstraResult;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 public class ServicioDifusion {
 
@@ -31,7 +29,6 @@ public class ServicioDifusion {
         this.algoritmos = new DirectedGraphAlgorithms();
     }
 
-    // Compartidos
 
     public void registrarCompartido(Usuario usuario, Posteo posteo) {
         if (usuario == null || posteo == null) {
@@ -58,14 +55,8 @@ public class ServicioDifusion {
         return false;
     }
 
-    // Grafo de difusión
-
-    /**
-     * Construye el grafo de difusión de un posteo.
-     * Arista u -> v: el posteo le llegó a v a través de u.
-     */
-    public DirectedGraph<Usuario, WeightedEdge> construirGrafoDifusion(Posteo posteo) {
-        DirectedGraph<Usuario, WeightedEdge> grafo = new DirectedGraph<>();
+    public DirectedGraph<Usuario, Object> construirGrafoDifusion(Posteo posteo) {
+        DirectedGraph<Usuario, Object> grafo = new DirectedGraph<>();
         Usuario autor = posteo.getAutor();
         grafo.agregarVertice(autor);
 
@@ -76,10 +67,10 @@ public class ServicioDifusion {
         for (Mencion mencion : posteo.getMenciones()) {
             Usuario mencionado = mencion.getUsuarioMencionado();
             grafo.agregarVertice(mencionado);
-            grafo.agregarArista(autor, mencionado, new WeightedEdge(1.0));
+            grafo.agregarArista(autor, mencionado, null);
         }
 
-        // 3. Le llega a los seguidores de cada usuario que lo compartió
+        // 3. Le llega a los seguidores de cada usuario que lo compartio
         for (Usuario compartidor : obtenerCompartidores(posteo)) {
             grafo.agregarVertice(compartidor);
             conectarConSeguidores(grafo, compartidor);
@@ -88,28 +79,20 @@ public class ServicioDifusion {
         return grafo;
     }
 
-    private void conectarConSeguidores(DirectedGraph<Usuario, WeightedEdge> grafo, Usuario usuario) {
+    private void conectarConSeguidores(DirectedGraph<Usuario, Object> grafo, Usuario usuario) {
         for (Usuario seguidor : servicioSeguidores.obtenerSeguidores(usuario)) {
             grafo.agregarVertice(seguidor);
-            grafo.agregarArista(usuario, seguidor, new WeightedEdge(1.0));
+            grafo.agregarArista(usuario, seguidor, null);
         }
     }
 
-    // Alcance de los comentaris/posteos REVISAR ESTE PRIMER AVANCE
-
-    /**
-     * Usuarios a los que llega el posteo (sin contar al autor).
-     * BFS desde el autor sobre el grafo de difusión: O(V + E).
-     */
     public Set<Usuario> calcularAlcance(Posteo posteo) {
         if (posteo == null) {
             return new HashSet<>();
         }
-        DirectedGraph<Usuario, WeightedEdge> grafo = construirGrafoDifusion(posteo);
-
+        DirectedGraph<Usuario, Object> grafo = construirGrafoDifusion(posteo);
         Set<Usuario> alcanzados = new HashSet<>();
         algoritmos.recorridoEnAmplitud(grafo, posteo.getAutor(), alcanzados::add);
-
         alcanzados.remove(posteo.getAutor());
         return alcanzados;
     }
@@ -118,28 +101,59 @@ public class ServicioDifusion {
         return posteo.getAutor().equals(usuario) || calcularAlcance(posteo).contains(usuario);
     }
 
-    
     // =====================================================================
     // CONSULTA PROPIA 1: Camino de difusion
     // =====================================================================
 
     /**
      * Devuelve por donde le llego un posteo a un usuario.
-     * Usa Dijkstra sobre el grafo de difusion del posteo. Como todas las
-     * aristas pesan 1, el camino mas barato es el de menos pasos.
-     * Si el posteo no le llego, devuelve una lista vacia.
+     * Usa un recorrido en amplitud (BFS) desde el autor: como las aristas no
+     * tienen peso, el primer camino que encuentra el BFS es el de menos pasos.
+     * Mientras recorre, guarda de que usuario vino cada uno ("padre") para
+     * despues reconstruir el camino.
      */
     public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
-        // Armamos el grafo de difusion de este posteo (quien se lo paso a quien)
-        DirectedGraph<Usuario, WeightedEdge> grafo = construirGrafoDifusion(posteo);
+        DirectedGraph<Usuario, Object> grafo = construirGrafoDifusion(posteo);
+        Usuario autor = posteo.getAutor();
 
-        // Dijkstra desde el autor: calcula el camino mas corto a cada usuario
-        IDijkstraResult<Usuario> resultado = algoritmos.dijkstra(posteo.getAutor(), grafo);
+        // padre.get(u) = usuario a traves del cual le llego el posteo a u
+        Map<Usuario, Usuario> padre = new HashMap<>();
+        Set<Usuario> visitados = new HashSet<>();
+        Queue<Usuario> cola = new LinkedList<>();
 
-        // Pedimos el camino hasta el destino (vacio si no hay camino)
-        return new ArrayList<>(resultado.getPath(destino));
+        visitados.add(autor);
+        cola.add(autor);
+
+        // BFS: recorremos por niveles desde el autor
+        while (!cola.isEmpty()) {
+            Usuario actual = cola.poll();
+
+            // Si llegamos al destino, ya tenemos el camino mas corto
+            if (actual.equals(destino)) {
+                break;
+            }
+
+            for (Usuario siguiente : grafo.successors(actual)) {
+                if (visitados.add(siguiente)) {
+                    padre.put(siguiente, actual);
+                    cola.add(siguiente);
+                }
+            }
+        }
+
+        // Si nunca lo visitamos, el posteo no le llego
+        if (!visitados.contains(destino)) {
+            return new ArrayList<>();
+        }
+
+        // Reconstruimos el camino yendo del destino hacia atras por los padres
+        LinkedList<Usuario> camino = new LinkedList<>();
+        for (Usuario u = destino; u != null; u = padre.get(u)) {
+            camino.addFirst(u);
+        }
+        return camino;
     }
-    
+
     // =====================================================================
     // CONSULTA PROPIA 5: Orden de llegada
     // =====================================================================
@@ -151,7 +165,7 @@ public class ServicioDifusion {
      * Usa el recorrido en amplitud (BFS)
      */
     public List<Usuario> ordenDeLlegada(Posteo posteo) {
-        DirectedGraph<Usuario, WeightedEdge> grafo = construirGrafoDifusion(posteo);
+        DirectedGraph<Usuario, Object> grafo = construirGrafoDifusion(posteo);
         List<Usuario> orden = new ArrayList<>();
 
         // El BFS desde el autor agrega a cada usuario en el orden en que lo visita

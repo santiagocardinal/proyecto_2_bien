@@ -24,7 +24,7 @@ public class ServicioSeguidores
         this.grafoSeguidores = new DirectedGraph<>();
     }
 
-    public void seguir(Usuario primero, Usuario segundo)
+        public void seguir(Usuario primero, Usuario segundo)
     {
         if (primero == null)
         {
@@ -42,26 +42,23 @@ public class ServicioSeguidores
             return;
         }
 
-        //antes se necesita si o si, obviamente, agregar los vertices
-        /*grafoSeguidores.agregarVertice(primero);
+        //antes se necesita si o si,  agregar los vertices
+        grafoSeguidores.agregarVertice(primero);
         grafoSeguidores.agregarVertice(segundo);
-        */
 
+        // Si ya lo seguia, no hacemos nada (asi no se cuenta dos veces)
+        if (grafoSeguidores.existeArista(primero, segundo))
+        {
+            return;
+        }
+
+        // La arista no tiene dato: el grafo de seguidores no tiene peso
         grafoSeguidores.agregarArista(primero, segundo, null);
-
-       // boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
 
         primero.setCantidadSeguidos(primero.getCantidadSeguidos() + 1);
         segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() + 1);
-        
-        /*if (agregado)
-        {
-            primero.setCantidadSeguidos(primero.getCantidadSeguidos() + 1);
-            segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() + 1);
-        }*/
-       
     }
-
+    
     public void dejarDeSeguir(Usuario primero, Usuario segundo)
     {
         if (primero == null)

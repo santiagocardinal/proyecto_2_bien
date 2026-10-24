@@ -4,11 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.example.grafo.DirectedGraph;
-import com.example.grafo.model.edge.WeightedEdge;
 import com.example.modelo.Posteo;
 import com.example.modelo.Usuario;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -33,38 +33,32 @@ public class ServicioDifusionTest {
         diego = new Usuario("diego");
     }
 
-    // ------------------------------------------------ Grafo de difusión
-
 
     @Test
     public void grafoTieneAristaHaciaElMencionadoTest() {
         Posteo posteo = new Posteo("P1", "Hola @diego", ana);
         posteo.agregarMencion(diego);
 
-        DirectedGraph<Usuario, WeightedEdge> grafo = difusion.construirGrafoDifusion(posteo);
+        DirectedGraph<Usuario, Object> grafo = difusion.construirGrafoDifusion(posteo);
 
         assertTrue(grafo.existeArista(ana, diego));
     }
-
 
     @Test
     public void grafoDePosteoSinInteraccionesSoloTieneAlAutorTest() {
         Posteo posteo = new Posteo("P1", "Hola", ana);
 
-        DirectedGraph<Usuario, WeightedEdge> grafo = difusion.construirGrafoDifusion(posteo);
+        DirectedGraph<Usuario, Object> grafo = difusion.construirGrafoDifusion(posteo);
 
         assertEquals(1, grafo.cantidadDeVertices());
         assertEquals(0, grafo.cantidadDeAristas());
     }
 
-    // ----------------------------------------------------------- Alcance
 
     @Test
     public void alcanceDePosteoNullEsVacioTest() {
         assertTrue(difusion.calcularAlcance(null).isEmpty());
     }
-
-
 
     @Test
     public void compartidorAlQueNoLeLlegoNoDifundeTest() {
@@ -78,8 +72,6 @@ public class ServicioDifusionTest {
         assertFalse(difusion.calcularAlcance(posteo).contains(carla));
     }
 
-
-    // ------------------------------------------------------- Compartidos
 
     @Test
     public void posteoSinCompartidosTest() {
@@ -113,4 +105,28 @@ public class ServicioDifusionTest {
 
         difusion.registrarCompartido(null, posteo);
     }
+
+
+    @Test
+    public void caminoPorCompartidoTest() {
+        // bruno sigue a ana, carla sigue a bruno
+        seguidores.seguir(bruno, ana);
+        seguidores.seguir(carla, bruno);
+        Posteo posteo = new Posteo("P1", "Hola", ana);
+        difusion.registrarCompartido(bruno, posteo);
+
+        List<Usuario> camino = difusion.caminoDeDifusion(posteo, carla);
+
+        assertEquals(Arrays.asList(ana, bruno, carla), camino);
+    }
+
+    @Test
+    public void caminoAQuienNoLeLlegoEsVacioTest() {
+        Posteo posteo = new Posteo("P1", "Hola", ana);
+
+        assertTrue(difusion.caminoDeDifusion(posteo, diego).isEmpty());
+    }
+
+
+   
 }
