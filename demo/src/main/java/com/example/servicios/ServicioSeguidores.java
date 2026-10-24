@@ -38,18 +38,22 @@ public class ServicioSeguidores
         }
 
         //antes se necesita si o si, obviamente, agregar los vertices
-        grafoSeguidores.agregarVertice(primero);
+        /*grafoSeguidores.agregarVertice(primero);
         grafoSeguidores.agregarVertice(segundo);
-        
+        */
+
         grafoSeguidores.agregarArista(primero, segundo, null);
 
-        boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
+       // boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
 
-        if (agregado)
+        primero.setCantidadSeguidos(primero.getCantidadSeguidos() + 1);
+        segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() + 1);
+        
+        /*if (agregado)
         {
             primero.setCantidadSeguidos(primero.getCantidadSeguidos() + 1);
             segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() + 1);
-        }
+        }*/
        
     }
 
@@ -65,15 +69,15 @@ public class ServicioSeguidores
             throw new IllegalArgumentException("El segundo usuario no puede ser nulo");
         }
         
-        grafoSeguidores.eliminarArista(primero, segundo);
+        // grafoSeguidores.eliminarArista(primero, segundo);
  
+        // Una sola llamada: devuelve true solo si la arista existia y se borro
         boolean desagregado = grafoSeguidores.eliminarArista(primero, segundo);
 
         if (desagregado)
         {
             primero.setCantidadSeguidos(primero.getCantidadSeguidos() - 1);
             segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() - 1);
-
         }
     }
 
@@ -117,7 +121,9 @@ public class ServicioSeguidores
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
         return obtenerSeguidos(usuario).size();
+
     }
+
     //AGREGO YO, LO DISCUTIMOS DESPUES
     //===============================================================================================
        
@@ -134,4 +140,6 @@ public class ServicioSeguidores
     {
         return grafoSeguidores;
     }
+
+    
 }
