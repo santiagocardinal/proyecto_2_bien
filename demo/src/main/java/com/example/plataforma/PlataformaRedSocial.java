@@ -1,7 +1,5 @@
 package com.example.plataforma;
 
-import com.example.grafo.IUndirectedGraph;
-import com.example.grafo.model.edge.WeightedEdge;
 import com.example.modelo.Comentario;
 import com.example.modelo.Posteo;
 import com.example.modelo.Usuario;
@@ -18,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 public class PlataformaRedSocial {
 
     private final Map<String, Usuario> usuarios;
@@ -28,7 +25,7 @@ public class PlataformaRedSocial {
     private final ServicioPublicaciones servicioPublicaciones; // grafoInteracciones
     private final ServicioDifusion servicioDifusion;           // grafoDifusion
     private final ServicioSugerencias servicioSugerencias;
-    private final ServicioAnalisisRed<WeightedEdge> servicioAnalisisRed;
+    private final ServicioAnalisisRed<Object> servicioAnalisisRed;
 
     public PlataformaRedSocial() {
         this.usuarios = new HashMap<>();
@@ -184,22 +181,9 @@ public class PlataformaRedSocial {
         return servicioAnalisisRed.identificarUsuariosPuente();
     }
 
-    //Validaciones
-
-    private void validarUsuario(Usuario usuario) {
-        if (usuario == null || !usuarios.containsKey(usuario.getNombreUsuario())) {
-            throw new IllegalArgumentException("El usuario " + usuario + " no está registrado");
-        }
-    }
-
-    private void validarPosteo(Posteo posteo) {
-        if (posteo == null || !posteos.containsKey(posteo.getId())) {
-            throw new IllegalArgumentException("El posteo no está registrado");
-        }
-    }
-        // =====================================================================
+    // =====================================================================
     // CONSULTAS PROPIAS DEL GRUPO
-    // Cada una usa un algoritmo distinto de la biblioteca de grafos.
+    // Cada una responde una pregunta del dominio usando la biblioteca de grafos.
     // =====================================================================
 
     /**
@@ -214,17 +198,7 @@ public class PlataformaRedSocial {
     }
 
     /**
-     * Consulta 2 - Audiencia potencial.
-     * ¿A quienes podria llegar lo que publica este usuario si todos compartieran?
-     * Algoritmo: Warshall. Implementada en ServicioDifusion.
-     */
-    public Set<Usuario> audienciaPotencial(Usuario usuario) {
-        validarUsuario(usuario);
-        return servicioDifusion.audienciaPotencial(usuario);
-    }
-
-    /**
-     * Consulta 3 - Centro de cada comunidad.
+     * Consulta 2 - Centro de cada comunidad.
      * ¿Quien es el usuario mas cercano a todos dentro de su grupo?
      * Algoritmo: Kosaraju + centro del grafo (Floyd). Implementada en ServicioAnalisisRed.
      */
@@ -233,22 +207,45 @@ public class PlataformaRedSocial {
     }
 
     /**
-     * Consulta 4 - Red de vinculos mas fuertes.
-     * ¿Cual es el minimo de relaciones que conecta a todos, con mas interaccion?
-     * Algoritmo: Kruskal. Implementada en ServicioPublicaciones.
+     * Consulta 3 - Circulo de interaccion.
+     * ¿Con quienes esta conectado un usuario por interacciones, directas o indirectas?
+     * Algoritmo: recorrido en profundidad (DFS). Implementada en ServicioPublicaciones.
      */
-    public IUndirectedGraph<Usuario, WeightedEdge> redDeVinculosFuertes() {
-        return servicioPublicaciones.redDeVinculosFuertes();
+    public Set<Usuario> circuloDeInteraccion(Usuario usuario) {
+        validarUsuario(usuario);
+        return servicioPublicaciones.circuloDeInteraccion(usuario);
     }
 
     /**
-     * Consulta 5 - Cadenas de contacto.
-     * ¿De cuantas formas distintas se puede llegar de un usuario a otro?
-     * Algoritmo: todos los caminos (DFS con backtracking). Implementada en ServicioSugerencias.
+     * Consulta 4 - Grupos de amigos mutuos.
+     * ¿Que grupos de usuarios estan unidos por seguimientos mutuos?
+     * Algoritmo: recorrido en amplitud (BFS) sobre un grafo no dirigido. Implementada en ServicioSeguidores.
      */
-    public List<List<Usuario>> cadenasDeContacto(Usuario origen, Usuario destino) {
-        validarUsuario(origen);
-        validarUsuario(destino);
-        return servicioSugerencias.cadenasDeContacto(origen, destino);
+    public List<Set<Usuario>> gruposDeAmigosMutuos() {
+        return servicioSeguidores.gruposDeAmigosMutuos();
+    }
+
+    /**
+     * Consulta 5 - Orden de llegada.
+     * ¿En que orden le fue llegando un posteo a los usuarios?
+     * Algoritmo: recorrido en amplitud (BFS). Implementada en ServicioDifusion.
+     */
+    public List<Usuario> ordenDeLlegada(Posteo posteo) {
+        validarPosteo(posteo);
+        return servicioDifusion.ordenDeLlegada(posteo);
+    }
+
+    // Validaciones
+
+    private void validarUsuario(Usuario usuario) {
+        if (usuario == null || !usuarios.containsKey(usuario.getNombreUsuario())) {
+            throw new IllegalArgumentException("El usuario " + usuario + " no está registrado");
+        }
+    }
+
+    private void validarPosteo(Posteo posteo) {
+        if (posteo == null || !posteos.containsKey(posteo.getId())) {
+            throw new IllegalArgumentException("El posteo no está registrado");
+        }
     }
 }

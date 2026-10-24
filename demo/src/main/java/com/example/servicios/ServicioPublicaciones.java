@@ -1,6 +1,7 @@
 package com.example.servicios;
 
 import com.example.grafo.DirectedGraph;
+import com.example.grafo.DirectedGraphAlgorithms;
 import com.example.grafo.model.edge.Edge;
 import com.example.modelo.Comentario;
 import com.example.modelo.Mencion;
@@ -9,16 +10,11 @@ import com.example.modelo.Usuario;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-
-//IMPORTS QUE NECESITO PARA LA CONSULTA 4
-import com.example.grafo.Graph;
-import com.example.grafo.IUndirectedGraph;
-import com.example.grafo.UndirectedGraphAlgorithmImpl;
-import com.example.grafo.model.edge.WeightedEdge;
 
 public class ServicioPublicaciones {
 
@@ -71,7 +67,7 @@ public class ServicioPublicaciones {
                 if (contenido.contains("@" + u.getNombreUsuario())) {
                     Mencion mencion = new Mencion(nuevoPosteo, u);
                     this.menciones.add(mencion);
-                    nuevoPosteo.agregarMencion(u);          // <- AGREGO UNA NUEVA LINEA
+                    nuevoPosteo.agregarMencion(u);   // el posteo guarda sus menciones
                     sumarInteraccion(autor, u);
                 }
             }
@@ -90,7 +86,7 @@ public class ServicioPublicaciones {
 
         Comentario nuevoComentario = new Comentario(idComentario, contenido, autor, posteo);
         this.comentarios.add(nuevoComentario);
-        posteo.agregarComentario(nuevoComentario);          // <- AGREGO
+        posteo.agregarComentario(nuevoComentario);   // el posteo guarda sus comentarios
         sumarInteraccion(autor, posteo.getAutor());
 
         if (todosLosUsuarios != null) {
@@ -98,7 +94,7 @@ public class ServicioPublicaciones {
                 if (contenido.contains("@" + u.getNombreUsuario())) {
                     Mencion mencion = new Mencion(posteo, u);
                     this.menciones.add(mencion);
-                    posteo.agregarMencion(u);               // <-AGERGO
+                    posteo.agregarMencion(u);        // la mencion del comentario queda en el posteo
                     sumarInteraccion(autor, u);
                 }
             }
@@ -202,53 +198,27 @@ public class ServicioPublicaciones {
         }
         return false;
     }
-        // =====================================================================
-    // CONSULTA PROPIA 4: Red de vinculos mas fuertes
+
+    // =====================================================================
+    // CONSULTA PROPIA 3: Circulo de interaccion
     // =====================================================================
 
     /**
-     * Graph (de la biblioteca) es no dirigido pero no implementa IUndirectedGraph,
-     * y Kruskal pide un IUndirectedGraph. Esta clase hereda todo de Graph
-     * y solo le agrega ese tipo, sin modificar la biblioteca.
+     * Devuelve todos los usuarios con los que un usuario esta conectado por
+     * interacciones, de forma directa o indirecta: con quienes interactuo,
+     * con quienes interactuaron esos, y asi sucesivamente.
+     * Usa el recorrido en profundidad (DFS) de la biblioteca sobre el grafo
+     * de interacciones.
      */
-    private static class GrafoNoDirigido<V, D> extends Graph<V, D> implements IUndirectedGraph<V, D> {
-    }
+    public Set<Usuario> circuloDeInteraccion(Usuario usuario) {
+        Set<Usuario> circulo = new LinkedHashSet<>();
+        DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
 
-    /**
-     * Devuelve el conjunto minimo de relaciones que mantiene conectados a
-     * los usuarios que interactuaron, quedandose con las de mas interaccion.
-     * Se arma un grafo NO dirigido de interacciones (no importa quien
-     * comento a quien, sino que hubo contacto) con peso 1 / interacciones:
-     * mientras mas interaccion, menor el peso. Kruskal busca el arbol de
-     * menor peso total, asi que elige los vinculos mas fuertes.
-     * Complejidad: O(E log E).
-     */
-    public IUndirectedGraph<Usuario, WeightedEdge> redDeVinculosFuertes() {
-        GrafoNoDirigido<Usuario, WeightedEdge> noDirigido = new GrafoNoDirigido<>();
+        // El DFS visita a cada usuario alcanzable desde "usuario" y lo agrega al conjunto
+        algoritmos.recorridoEnProfundidad(grafoInteracciones, usuario, circulo::add);
 
-        // Mismos usuarios que el grafo de interacciones
-        for (Usuario u : grafoInteracciones.vertices()) {
-            noDirigido.agregarVertice(u);
-        }
-
-        // Pasamos cada interaccion u -> v a una arista u - v
-        for (Edge<Usuario, Integer> arista : grafoInteracciones.aristas()) {
-            Usuario u = arista.source();
-            Usuario v = arista.target();
-            int total = arista.dato();
-
-            // Si tambien hay interaccion v -> u, las sumamos (es el mismo vinculo)
-            Edge<Usuario, Integer> vuelta = grafoInteracciones.obtenerArista(v, u);
-            if (vuelta != null) {
-                total += vuelta.dato();
-            }
-
-            // Mas interacciones = menor peso
-            noDirigido.agregarArista(u, v, new WeightedEdge(1.0 / total));
-        }
-
-        // Kruskal devuelve el arbol (o bosque) de menor peso total
-        UndirectedGraphAlgorithmImpl algoritmos = new UndirectedGraphAlgorithmImpl();
-        return algoritmos.kruskal(noDirigido);
+        // El propio usuario no forma parte de su circulo
+        circulo.remove(usuario);
+        return circulo;
     }
 }

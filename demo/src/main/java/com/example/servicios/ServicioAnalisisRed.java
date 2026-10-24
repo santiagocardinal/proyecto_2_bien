@@ -35,37 +35,47 @@ public class ServicioAnalisisRed<D> {
         return influencia;
     }
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Algoritmo de Kosaraju
+    /**
+     * Detecta las comunidades: grupos de usuarios donde cada uno puede llegar
+     * a cualquier otro siguiendo la relacion de seguimiento (componentes
+     * fuertemente conexas).
+     * Dos usuarios A y B estan en la misma comunidad si A llega a B y B llega a A.
+     * Para saber a quien llega cada usuario usamos el recorrido en profundidad
+     * (DFS) 
+     */
     public List<Set<Usuario>> detectarComunidades() {
 
-        Set<Usuario> visitados = new HashSet<>();
-        Deque<Usuario> pila = new ArrayDeque<>();
+        DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
 
-        // Primer DFS
+        // 1. Para cada usuario, guardamos a quienes puede llegar (incluido el mismo)
+        Map<Usuario, Set<Usuario>> alcanzables = new HashMap<>();
         for (Usuario usuario : grafoSeguidores.vertices()) {
-            if (!visitados.contains(usuario)) {
-                dfsOrden(usuario, visitados, pila);
-            }
+            Set<Usuario> desdeUsuario = new HashSet<>();
+            algoritmos.recorridoEnProfundidad(grafoSeguidores, usuario, desdeUsuario::add);
+            alcanzables.put(usuario, desdeUsuario);
         }
 
-        visitados.clear();
-
+        // 2. Armamos las comunidades
+        Set<Usuario> asignados = new HashSet<>();
         List<Set<Usuario>> comunidades = new ArrayList<>();
 
-        // Segundo DFS
-        while (!pila.isEmpty()) {
+        for (Usuario usuario : grafoSeguidores.vertices()) {
 
-            Usuario usuario = pila.pop();
-
-            if (!visitados.contains(usuario)) {
-
-                Set<Usuario> comunidad = new HashSet<>();
-
-                dfsTranspuesto(usuario, visitados, comunidad);
-
-                comunidades.add(comunidad);
+            // Si ya esta en una comunidad, lo salteamos
+            if (asignados.contains(usuario)) {
+                continue;
             }
+
+            // Su comunidad: los que alcanza y que tambien lo alcanzan a el
+            Set<Usuario> comunidad = new HashSet<>();
+            for (Usuario otro : alcanzables.get(usuario)) {
+                if (alcanzables.get(otro).contains(usuario)) {
+                    comunidad.add(otro);
+                }
+            }
+
+            asignados.addAll(comunidad);
+            comunidades.add(comunidad);
         }
 
         return comunidades;
@@ -170,20 +180,15 @@ public class ServicioAnalisisRed<D> {
         }
     }
 
-        // =====================================================================
-    // CONSULTA PROPIA 3: Centro de cada comunidad
+     // =====================================================================
+    // CONSULTA 3: Centro de cada comunidad
     // =====================================================================
 
     /**
      * Devuelve, para cada comunidad, su usuario mas "central": aquel al que
      * todos los demas de su grupo llegan en la menor cantidad de pasos
      * (el de menor excentricidad).
-     * Se calcula por comunidad porque el centro solo tiene sentido si todos
-     * se pueden alcanzar entre si, y eso pasa dentro de una comunidad
-     * (componente fuertemente conexa), no en toda la red.
-     * Usa las comunidades de detectarComunidades (Kosaraju) y el centro del
-     * grafo de la biblioteca (que usa Floyd).
-     * Complejidad: O(V + E) para las comunidades + O(k^3) por comunidad de k usuarios.
+     
      */
     public Map<Set<Usuario>, Usuario> centrosDeComunidades() {
         Map<Set<Usuario>, Usuario> centros = new LinkedHashMap<>();

@@ -16,7 +16,6 @@ import java.util.Set;
 
 //PARA LA CONSULTA 1 Y 2 NECESITO ESTOS IMPORTS:
 import com.example.grafo.model.result.IDijkstraResult;
-import com.example.grafo.model.result.IFloydWarshallResult;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,12 +125,9 @@ public class ServicioDifusion {
 
     /**
      * Devuelve por donde le llego un posteo a un usuario.
-     * Ejemplo: [@ana, @fede, @eva] significa que ana lo publico,
-     * fede lo compartio y asi le llego a eva.
      * Usa Dijkstra sobre el grafo de difusion del posteo. Como todas las
      * aristas pesan 1, el camino mas barato es el de menos pasos.
      * Si el posteo no le llego, devuelve una lista vacia.
-     * Complejidad: O((V + E) log V).
      */
     public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
         // Armamos el grafo de difusion de este posteo (quien se lo paso a quien)
@@ -143,34 +139,26 @@ public class ServicioDifusion {
         // Pedimos el camino hasta el destino (vacio si no hay camino)
         return new ArrayList<>(resultado.getPath(destino));
     }
-
+    
     // =====================================================================
-    // CONSULTA PROPIA 2: Audiencia potencial
+    // CONSULTA PROPIA 5: Orden de llegada
     // =====================================================================
 
     /**
-     * Devuelve todos los usuarios a los que podria llegar lo que publica
-     * un usuario, si en cada paso alguien lo compartiera.
-     * Un usuario w es audiencia potencial de u si hay una cadena de
-     * seguidores w -> ... -> u (w sigue a alguien, que sigue a alguien... que sigue a u).
-     * Usa Warshall (cerradura transitiva) sobre el grafo de seguidores.
-     * Complejidad: O(V^3).
+     * Devuelve los usuarios en el orden en que les fue llegando un posteo:
+     * primero los que lo recibieron directo del autor (seguidores y
+     * mencionados), despues los que lo recibieron por un compartido, y asi.
+     * Usa el recorrido en amplitud (BFS)
      */
-    public Set<Usuario> audienciaPotencial(Usuario usuario) {
-        DirectedGraph<Usuario, WeightedEdge> grafoSeguidores = servicioSeguidores.getGrafoSeguidores();
+    public List<Usuario> ordenDeLlegada(Posteo posteo) {
+        DirectedGraph<Usuario, WeightedEdge> grafo = construirGrafoDifusion(posteo);
+        List<Usuario> orden = new ArrayList<>();
 
-        // Warshall calcula, para cada par (w, u), si existe un camino de w a u
-        IFloydWarshallResult<Usuario> cierre = algoritmos.warshall(grafoSeguidores);
+        // El BFS desde el autor agrega a cada usuario en el orden en que lo visita
+        algoritmos.recorridoEnAmplitud(grafo, posteo.getAutor(), orden::add);
 
-        Set<Usuario> audiencia = new HashSet<>();
-
-        // Recorremos todos los usuarios de la red
-        for (Usuario otro : grafoSeguidores.vertices()) {
-            // Si hay camino de "otro" hasta el usuario, el contenido le puede llegar
-            if (!otro.equals(usuario) && cierre.connected(otro, usuario)) {
-                audiencia.add(otro);
-            }
-        }
-        return audiencia;
+        // El autor no "recibe" su propio posteo
+        orden.remove(posteo.getAutor());
+        return orden;
     }
 }

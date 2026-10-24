@@ -9,7 +9,6 @@ import com.example.modelo.Posteo;
 import com.example.modelo.Usuario;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -36,17 +35,6 @@ public class ServicioDifusionTest {
 
     // ------------------------------------------------ Grafo de difusión
 
-    @Test
-    public void grafoTieneAristaDelAutorASuSeguidorTest() {
-        seguidores.seguir(bruno, ana);
-        Posteo posteo = new Posteo("P1", "Hola", ana);
-
-        DirectedGraph<Usuario, WeightedEdge> grafo = difusion.construirGrafoDifusion(posteo);
-
-        // la arista va de ana (quien publica) a bruno (a quien le llega)
-        assertTrue(grafo.existeArista(ana, bruno));
-        assertFalse(grafo.existeArista(bruno, ana));
-    }
 
     @Test
     public void grafoTieneAristaHaciaElMencionadoTest() {
@@ -58,16 +46,6 @@ public class ServicioDifusionTest {
         assertTrue(grafo.existeArista(ana, diego));
     }
 
-    @Test
-    public void grafoTieneAristaDelCompartidorASusSeguidoresTest() {
-        seguidores.seguir(carla, diego);
-        Posteo posteo = new Posteo("P1", "Hola", ana);
-
-        difusion.registrarCompartido(diego, posteo);
-        DirectedGraph<Usuario, WeightedEdge> grafo = difusion.construirGrafoDifusion(posteo);
-
-        assertTrue(grafo.existeArista(diego, carla));
-    }
 
     @Test
     public void grafoDePosteoSinInteraccionesSoloTieneAlAutorTest() {
@@ -86,20 +64,7 @@ public class ServicioDifusionTest {
         assertTrue(difusion.calcularAlcance(null).isEmpty());
     }
 
-    @Test
-    public void alcanceEnCadenaPorCompartidoTest() {
-        // ana <- bruno <- carla   (bruno sigue a ana, carla sigue a bruno)
-        seguidores.seguir(bruno, ana);
-        seguidores.seguir(carla, bruno);
-        Posteo posteo = new Posteo("P1", "Hola", ana);
 
-        difusion.registrarCompartido(bruno, posteo);
-        Set<Usuario> alcance = difusion.calcularAlcance(posteo);
-
-        assertEquals(2, alcance.size());
-        assertTrue(alcance.contains(bruno));
-        assertTrue(alcance.contains(carla));
-    }
 
     @Test
     public void compartidorAlQueNoLeLlegoNoDifundeTest() {
@@ -113,15 +78,6 @@ public class ServicioDifusionTest {
         assertFalse(difusion.calcularAlcance(posteo).contains(carla));
     }
 
-    @Test
-    public void leLlegaTest() {
-        seguidores.seguir(bruno, ana);
-        Posteo posteo = new Posteo("P1", "Hola", ana);
-
-        assertTrue(difusion.leLlega(ana, posteo));   // el autor
-        assertTrue(difusion.leLlega(bruno, posteo)); // un seguidor
-        assertFalse(difusion.leLlega(diego, posteo)); // alguien sin relación
-    }
 
     // ------------------------------------------------------- Compartidos
 

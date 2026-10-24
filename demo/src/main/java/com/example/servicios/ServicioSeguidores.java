@@ -10,6 +10,11 @@ import com.example.modelo.Usuario;
 //AGREGO YO, LO DISCUTIMOS DESPUES
 import com.example.grafo.model.edge.WeightedEdge;
 
+//TENGO QUE AGREGAR PARA LA CONSULTA 3
+import java.util.HashSet;
+import com.example.grafo.DirectedGraphAlgorithms;
+import com.example.grafo.Graph;
+
 public class ServicioSeguidores
 {
     private final DirectedGraph<Usuario, Object> grafoSeguidores;
@@ -140,6 +145,61 @@ public class ServicioSeguidores
     {
         return grafoSeguidores;
     }
-
     
+    // ===================================================================
+    // CONSULTA PROPIA 4: Grupos de amigos mutuos
+    // ===================================================================
+
+    /**
+     * Devuelve los grupos de usuarios unidos por seguimientos mutuos
+     * (A sigue a B y B sigue a A). Dos usuarios estan en el mismo grupo
+     * si hay una cadena de amistades mutuas entre ellos.
+     * Se arma un grafo NO dirigido con una arista por cada amistad mutua
+     * (ahi la direccion no importa, porque la relacion es reciproca) y se
+     * buscan sus componentes conexas con el recorrido en amplitud (BFS)
+     */
+    public List<Set<Usuario>> gruposDeAmigosMutuos()
+    {
+        // Grafo no dirigido de amistades mutuas, con los mismos usuarios
+        Graph<Usuario, Object> amistades = new Graph<>();
+        for (Usuario usuario : grafoSeguidores.vertices())
+        {
+            amistades.agregarVertice(usuario);
+        }
+
+        // Agregamos una arista solo si el seguimiento es en los dos sentidos
+        for (Usuario usuario : grafoSeguidores.vertices())
+        {
+            for (Usuario seguido : grafoSeguidores.successors(usuario))
+            {
+                if (grafoSeguidores.existeArista(seguido, usuario))
+                {
+                    amistades.agregarArista(usuario, seguido, null);
+                }
+            }
+        }
+
+        DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
+        Set<Usuario> visitados = new HashSet<>();
+        List<Set<Usuario>> grupos = new ArrayList<>();
+
+        // Cada BFS desde un usuario no visitado encuentra un grupo completo
+        for (Usuario usuario : amistades.vertices())
+        {
+            if (!visitados.contains(usuario))
+            {
+                Set<Usuario> grupo = new HashSet<>();
+                algoritmos.recorridoEnAmplitud(amistades, usuario, grupo::add);
+                visitados.addAll(grupo);
+
+                // Un usuario solo no es un grupo de amigos
+                if (grupo.size() >= 2)
+                {
+                    grupos.add(grupo);
+                }
+            }
+        }
+        return grupos;
+    }
+
 }
