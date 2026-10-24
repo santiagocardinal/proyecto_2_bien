@@ -12,9 +12,7 @@ import com.example.grafo.model.edge.WeightedEdge;
 
 public class ServicioSeguidores
 {
-    //CAMBIO:     private final DirectedGraph<Usuario, Object> grafoSeguidores;
-    //POR ESTO:
-    private final DirectedGraph<Usuario, WeightedEdge> grafoSeguidores;
+    private final DirectedGraph<Usuario, Object> grafoSeguidores;
 
     public ServicioSeguidores() 
     {
@@ -43,16 +41,15 @@ public class ServicioSeguidores
         grafoSeguidores.agregarVertice(primero);
         grafoSeguidores.agregarVertice(segundo);
         
-        //AGREGO LO DE ABAJO
-        grafoSeguidores.agregarArista(primero, segundo, new WeightedEdge(1.0));
-        //Tengo que sacar esto
-        /*boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
+        grafoSeguidores.agregarArista(primero, segundo, null);
+
+        boolean agregado = grafoSeguidores.agregarArista(primero, segundo, null);
 
         if (agregado)
         {
             primero.setCantidadSeguidos(primero.getCantidadSeguidos() + 1);
             segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() + 1);
-        }*/
+        }
        
     }
 
@@ -68,11 +65,8 @@ public class ServicioSeguidores
             throw new IllegalArgumentException("El segundo usuario no puede ser nulo");
         }
         
-        //AGREGO LO DE ABAJO
         grafoSeguidores.eliminarArista(primero, segundo);
-
-        //SACO
-        /* 
+ 
         boolean desagregado = grafoSeguidores.eliminarArista(primero, segundo);
 
         if (desagregado)
@@ -80,7 +74,7 @@ public class ServicioSeguidores
             primero.setCantidadSeguidos(primero.getCantidadSeguidos() - 1);
             segundo.setCantidadSeguidores(segundo.getCantidadSeguidores() - 1);
 
-        }*/
+        }
     }
 
     public List<Usuario> obtenerSeguidores(Usuario usuario)
@@ -136,7 +130,7 @@ public class ServicioSeguidores
         grafoSeguidores.agregarVertice(usuario);
     }
 
-    public DirectedGraph<Usuario, WeightedEdge> getGrafoSeguidores()
+    public DirectedGraph<Usuario, Object> getGrafoSeguidores()
     {
         return grafoSeguidores;
     }
