@@ -7,7 +7,7 @@ import com.example.servicios.ServicioAnalisisRed;
 import com.example.servicios.ServicioDifusion;
 import com.example.servicios.ServicioPublicaciones;
 import com.example.servicios.ServicioSeguidores;
-import com.example.servicios.ServicioSugerencias;
+import com.example.servicios.ServicioSugerenciasTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class PlataformaRedSocial {
     private final ServicioSeguidores servicioSeguidores;       // grafoSeguidores
     private final ServicioPublicaciones servicioPublicaciones; // grafoInteracciones
     private final ServicioDifusion servicioDifusion;           // grafoDifusion
-    private final ServicioSugerencias servicioSugerencias;
+    private final ServicioSugerenciasTest servicioSugerencias;
     private final ServicioAnalisisRed<Object> servicioAnalisisRed;
 
     public PlataformaRedSocial() {
@@ -36,7 +36,7 @@ public class PlataformaRedSocial {
 
         // Todos trabajan sobre el MISMO grafo de seguidores
         this.servicioDifusion = new ServicioDifusion(servicioSeguidores);
-        this.servicioSugerencias = new ServicioSugerencias(servicioSeguidores);
+        this.servicioSugerencias = new ServicioSugerenciasTest(servicioSeguidores);
         this.servicioAnalisisRed = new ServicioAnalisisRed<>(servicioSeguidores.getGrafoSeguidores());
     }
 

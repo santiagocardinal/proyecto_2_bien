@@ -24,7 +24,7 @@ public class ServicioSeguidores
         this.grafoSeguidores = new DirectedGraph<>();
     }
 
-        public void seguir(Usuario primero, Usuario segundo)
+    public void seguir(Usuario primero, Usuario segundo)
     {
         if (primero == null)
         {
