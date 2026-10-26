@@ -7,7 +7,9 @@ import com.example.servicios.ServicioAnalisisRed;
 import com.example.servicios.ServicioDifusion;
 import com.example.servicios.ServicioPublicaciones;
 import com.example.servicios.ServicioSeguidores;
-import com.example.servicios.ServicioSugerenciasTest;
+import com.example.servicios.ServicioSugerencias;
+
+//import com.example.servicios.ServicioSugerenciasTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +26,8 @@ public class PlataformaRedSocial {
     private final ServicioSeguidores servicioSeguidores;       // grafoSeguidores
     private final ServicioPublicaciones servicioPublicaciones; // grafoInteracciones
     private final ServicioDifusion servicioDifusion;           // grafoDifusion
-    private final ServicioSugerenciasTest servicioSugerencias;
+    private final ServicioSugerencias servicioSugerencias;
+    //private final ServicioSugerenciasTest servicioSugerencias;
     private final ServicioAnalisisRed<Object> servicioAnalisisRed;
 
     public PlataformaRedSocial() {
@@ -36,8 +39,7 @@ public class PlataformaRedSocial {
 
         // Todos trabajan sobre el MISMO grafo de seguidores
         this.servicioDifusion = new ServicioDifusion(servicioSeguidores);
-        this.servicioSugerencias = new ServicioSugerenciasTest(servicioSeguidores);
-        this.servicioAnalisisRed = new ServicioAnalisisRed<>(servicioSeguidores.getGrafoSeguidores());
+        this.servicioSugerencias = new ServicioSugerencias(servicioSeguidores);        this.servicioAnalisisRed = new ServicioAnalisisRed<>(servicioSeguidores.getGrafoSeguidores());
     }
 
     // Usuarios - CLASES DE NICO :(
@@ -189,7 +191,7 @@ public class PlataformaRedSocial {
     /**
      * Consulta 1 - Camino de difusion.
      * ¿Por donde le llego este posteo a este usuario?
-     * Algoritmo: Dijkstra. Implementada en ServicioDifusion.
+     * Algoritmo: recorrido en amplitud (BFS). Implementada en ServicioDifusion.
      */
     public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
         validarPosteo(posteo);
