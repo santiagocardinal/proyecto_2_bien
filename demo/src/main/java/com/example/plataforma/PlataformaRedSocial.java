@@ -202,8 +202,7 @@ public class PlataformaRedSocial {
     /**
      * Consulta 2 - Centro de cada comunidad.
      * ¿Quien es el usuario mas cercano a todos dentro de su grupo?
-     * Algoritmo: Kosaraju + centro del grafo (Floyd). Implementada en ServicioAnalisisRed.
-     */
+     * Algoritmo: DFS + centro del grafo (Floyd). Implementada en ServicioAnalisisRed.     */
     public Map<Set<Usuario>, Usuario> centrosDeComunidades() {
         return servicioAnalisisRed.centrosDeComunidades();
     }
