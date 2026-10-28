@@ -18,7 +18,7 @@ public class ServicioAnalisisRed<D> {
         this.grafoSeguidores = grafoSeguidores;
     }
 
-    // -----------------------------------------------------------------------------------------------------------------
+
 
     public Map<Usuario, Integer> calcularInfluencia() {
 
@@ -35,14 +35,7 @@ public class ServicioAnalisisRed<D> {
         return influencia;
     }
 
-    /**
-     * Detecta las comunidades: grupos de usuarios donde cada uno puede llegar
-     * a cualquier otro siguiendo la relacion de seguimiento (componentes
-     * fuertemente conexas).
-     * Dos usuarios A y B estan en la misma comunidad si A llega a B y B llega a A.
-     * Para saber a quien llega cada usuario usamos el recorrido en profundidad
-     * (DFS) 
-     */
+  
     public List<Set<Usuario>> detectarComunidades() {
 
         DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
@@ -105,7 +98,7 @@ public class ServicioAnalisisRed<D> {
         }
     }
 
-    // -----------------------------------------------------------------------------------------------------------------
+
 
     public Set<Usuario> identificarUsuariosPuente() {
 
@@ -180,16 +173,9 @@ public class ServicioAnalisisRed<D> {
         }
     }
 
-     // =====================================================================
-    // CONSULTA 3: Centro de cada comunidad
-    // =====================================================================
 
-    /**
-     * Devuelve, para cada comunidad, su usuario mas "central": aquel al que
-     * todos los demas de su grupo llegan en la menor cantidad de pasos
-     * (el de menor excentricidad).
-     
-     */
+    // CONSULTA 3: Centro de cada comunidad
+
     public Map<Set<Usuario>, Usuario> centrosDeComunidades() {
         Map<Set<Usuario>, Usuario> centros = new LinkedHashMap<>();
 
@@ -216,7 +202,7 @@ public class ServicioAnalisisRed<D> {
             }
         }
 
-        // La biblioteca calcula el vertice de menor excentricidad
+        // calcula el vertice de menor excentricidad
         DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();
         return algoritmos.obtenerCentroGrafo(subgrafo);
     }

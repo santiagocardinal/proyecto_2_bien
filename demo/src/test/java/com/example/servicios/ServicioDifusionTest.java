@@ -126,7 +126,5 @@ public class ServicioDifusionTest {
 
         assertTrue(difusion.caminoDeDifusion(posteo, diego).isEmpty());
     }
-
-
-   
+  
 }

@@ -110,7 +110,6 @@ public class PosteoTest {
         assertFalse(posteo.fueMencionado(pedro));
     }
 
-    // ------------------------------------------------------------------ Otros
 
     @Test
     public void noModificarListaOriginalTest() {

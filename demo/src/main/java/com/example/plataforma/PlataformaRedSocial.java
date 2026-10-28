@@ -23,9 +23,9 @@ public class PlataformaRedSocial {
     private final Map<String, Usuario> usuarios;
     private final Map<String, Posteo> posteos;
 
-    private final ServicioSeguidores servicioSeguidores;       // grafoSeguidores
-    private final ServicioPublicaciones servicioPublicaciones; // grafoInteracciones
-    private final ServicioDifusion servicioDifusion;           // grafoDifusion
+    private final ServicioSeguidores servicioSeguidores;       
+    private final ServicioPublicaciones servicioPublicaciones; 
+    private final ServicioDifusion servicioDifusion;           
     private final ServicioSugerencias servicioSugerencias;
     //private final ServicioSugerenciasTest servicioSugerencias;
     private final ServicioAnalisisRed<Object> servicioAnalisisRed;
@@ -42,7 +42,7 @@ public class PlataformaRedSocial {
         this.servicioSugerencias = new ServicioSugerencias(servicioSeguidores);        this.servicioAnalisisRed = new ServicioAnalisisRed<>(servicioSeguidores.getGrafoSeguidores());
     }
 
-    // Usuarios - CLASES DE NICO :(
+    // Usuarios - CLASES DE NICO 
 
     public boolean registrarUsuario(Usuario usuario) {
         if (usuario == null || usuarios.containsKey(usuario.getNombreUsuario())) {
@@ -183,54 +183,41 @@ public class PlataformaRedSocial {
         return servicioAnalisisRed.identificarUsuariosPuente();
     }
 
-    // =====================================================================
     // CONSULTAS PROPIAS DEL GRUPO
-    // Cada una responde una pregunta del dominio usando la biblioteca de grafos.
-    // =====================================================================
 
-    /**
-     * Consulta 1 - Camino de difusion.
-     * ¿Por donde le llego este posteo a este usuario?
-     * Algoritmo: recorrido en amplitud (BFS). Implementada en ServicioDifusion.
-     */
+    //Consulta 1 - Camino de difusion.
+    
     public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
         validarPosteo(posteo);
         validarUsuario(destino);
         return servicioDifusion.caminoDeDifusion(posteo, destino);
     }
 
-    /**
-     * Consulta 2 - Centro de cada comunidad.
-     * ¿Quien es el usuario mas cercano a todos dentro de su grupo?
-     * Algoritmo: DFS + centro del grafo (Floyd). Implementada en ServicioAnalisisRed.     */
+    
+    //Consulta 2 - Centro de cada comunidad.
+
     public Map<Set<Usuario>, Usuario> centrosDeComunidades() {
         return servicioAnalisisRed.centrosDeComunidades();
     }
 
-    /**
-     * Consulta 3 - Circulo de interaccion.
-     * ¿Con quienes esta conectado un usuario por interacciones, directas o indirectas?
-     * Algoritmo: recorrido en profundidad (DFS). Implementada en ServicioPublicaciones.
-     */
+    
+    //Consulta 3 - Circulo de interaccion.
+   
     public Set<Usuario> circuloDeInteraccion(Usuario usuario) {
         validarUsuario(usuario);
         return servicioPublicaciones.circuloDeInteraccion(usuario);
     }
 
-    /**
-     * Consulta 4 - Grupos de amigos mutuos.
-     * ¿Que grupos de usuarios estan unidos por seguimientos mutuos?
-     * Algoritmo: recorrido en amplitud (BFS) sobre un grafo no dirigido. Implementada en ServicioSeguidores.
-     */
+    
+    //Consulta 4 - Grupos de amigos mutuos.
+     
     public List<Set<Usuario>> gruposDeAmigosMutuos() {
         return servicioSeguidores.gruposDeAmigosMutuos();
     }
 
-    /**
-     * Consulta 5 - Orden de llegada.
-     * ¿En que orden le fue llegando un posteo a los usuarios?
-     * Algoritmo: recorrido en amplitud (BFS). Implementada en ServicioDifusion.
-     */
+    
+    //Consulta 5 - Orden de llegada.
+
     public List<Usuario> ordenDeLlegada(Posteo posteo) {
         validarPosteo(posteo);
         return servicioDifusion.ordenDeLlegada(posteo);

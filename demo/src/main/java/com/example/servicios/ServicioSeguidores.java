@@ -7,10 +7,6 @@ import java.util.Set;
 import com.example.grafo.DirectedGraph;
 import com.example.modelo.Usuario;
 
-//AGREGO YO, LO DISCUTIMOS DESPUES
-import com.example.grafo.model.edge.WeightedEdge;
-
-//TENGO QUE AGREGAR PARA LA CONSULTA 3
 import java.util.HashSet;
 import com.example.grafo.DirectedGraphAlgorithms;
 import com.example.grafo.Graph;
@@ -125,10 +121,7 @@ public class ServicioSeguidores
         return obtenerSeguidos(usuario).size();
 
     }
-
-    //AGREGO YO, LO DISCUTIMOS DESPUES
-    //===============================================================================================
-       
+ 
     public void agregarUsuario(Usuario usuario)
     {
         if (usuario == null)
@@ -143,18 +136,8 @@ public class ServicioSeguidores
         return grafoSeguidores;
     }
     
-    // ===================================================================
-    // CONSULTA PROPIA 4: Grupos de amigos mutuos
-    // ===================================================================
-
-    /**
-     * Devuelve los grupos de usuarios unidos por seguimientos mutuos
-     * (A sigue a B y B sigue a A). Dos usuarios estan en el mismo grupo
-     * si hay una cadena de amistades mutuas entre ellos.
-     * Se arma un grafo NO dirigido con una arista por cada amistad mutua
-     * (ahi la direccion no importa, porque la relacion es reciproca) y se
-     * buscan sus componentes conexas con el recorrido en amplitud (BFS)
-     */
+    // CONSULTA  4: Grupos de amigos mutuos
+    
     public List<Set<Usuario>> gruposDeAmigosMutuos()
     {
         // Grafo no dirigido de amistades mutuas, con los mismos usuarios

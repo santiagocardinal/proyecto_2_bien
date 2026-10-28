@@ -4,7 +4,6 @@ package com.example.servicios;
 import com.example.grafo.DirectedGraph;
 import com.example.grafo.IDirectedIGraph;
 import com.example.modelo.Usuario;
-import com.example.servicios.ServicioAnalisisRed;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,10 +53,7 @@ public class ServicioAnalisisRedTest {
         assertTrue(grafo.agregarArista(origen, destino, "seguimiento"));
     }
 
-    // -----------------------------------------------------
-    // TESTS CALCULAR INFLUENCIA
-    // -----------------------------------------------------
-
+    
     @Test
     public void calcularInfluenciaGrafoVacio() {
 
@@ -112,9 +108,6 @@ public class ServicioAnalisisRedTest {
     }
 
     
-    // -----------------------------------------------------
-    // TESTS IDENTIFICAR USUARIOS PUENTE
-    // -----------------------------------------------------
 
     @Test
     public void identificarUsuariosPuenteGrafoVacio() {

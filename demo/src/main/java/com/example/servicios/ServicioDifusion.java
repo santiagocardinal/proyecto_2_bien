@@ -101,17 +101,9 @@ public class ServicioDifusion {
         return posteo.getAutor().equals(usuario) || calcularAlcance(posteo).contains(usuario);
     }
 
-    // =====================================================================
-    // CONSULTA PROPIA 1: Camino de difusion
-    // =====================================================================
 
-    /**
-     * Devuelve por donde le llego un posteo a un usuario.
-     * Usa un recorrido en amplitud (BFS) desde el autor: como las aristas no
-     * tienen peso, el primer camino que encuentra el BFS es el de menos pasos.
-     * Mientras recorre, guarda de que usuario vino cada uno ("padre") para
-     * despues reconstruir el camino.
-     */
+    // CONSULTA 1: Camino de difusion
+    
     public List<Usuario> caminoDeDifusion(Posteo posteo, Usuario destino) {
         DirectedGraph<Usuario, Object> grafo = construirGrafoDifusion(posteo);
         Usuario autor = posteo.getAutor();
@@ -154,16 +146,9 @@ public class ServicioDifusion {
         return camino;
     }
 
-    // =====================================================================
-    // CONSULTA PROPIA 5: Orden de llegada
-    // =====================================================================
-
-    /**
-     * Devuelve los usuarios en el orden en que les fue llegando un posteo:
-     * primero los que lo recibieron directo del autor (seguidores y
-     * mencionados), despues los que lo recibieron por un compartido, y asi.
-     * Usa el recorrido en amplitud (BFS)
-     */
+    
+    // CONSULTA 5: Orden de llegada
+    
     public List<Usuario> ordenDeLlegada(Posteo posteo) {
         DirectedGraph<Usuario, Object> grafo = construirGrafoDifusion(posteo);
         List<Usuario> orden = new ArrayList<>();

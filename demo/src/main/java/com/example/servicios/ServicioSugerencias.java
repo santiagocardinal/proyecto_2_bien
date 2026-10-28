@@ -10,9 +10,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.example.modelo.Usuario;
-//IMPORTS QUE NECESITO PARA LA CONSULTA 5
-import com.example.grafo.DirectedGraphAlgorithms;
-import com.example.grafo.model.result.Path;
+
 
 
 public class ServicioSugerencias 

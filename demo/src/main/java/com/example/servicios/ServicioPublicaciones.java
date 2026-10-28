@@ -199,17 +199,9 @@ public class ServicioPublicaciones {
         return false;
     }
 
-    // =====================================================================
+    
     // CONSULTA PROPIA 3: Circulo de interaccion
-    // =====================================================================
-
-    /**
-     * Devuelve todos los usuarios con los que un usuario esta conectado por
-     * interacciones, de forma directa o indirecta: con quienes interactuo,
-     * con quienes interactuaron esos, y asi sucesivamente.
-     * Usa el recorrido en profundidad (DFS) de la biblioteca sobre el grafo
-     * de interacciones.
-     */
+    
     public Set<Usuario> circuloDeInteraccion(Usuario usuario) {
         Set<Usuario> circulo = new LinkedHashSet<>();
         DirectedGraphAlgorithms algoritmos = new DirectedGraphAlgorithms();

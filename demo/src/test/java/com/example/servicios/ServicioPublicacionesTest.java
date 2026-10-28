@@ -3,7 +3,6 @@ package com.example.servicios;
 import com.example.modelo.Comentario;
 import com.example.modelo.Posteo;
 import com.example.modelo.Usuario;
-import com.example.servicios.ServicioPublicaciones;
 
 import org.junit.Before;
 import org.junit.Test;

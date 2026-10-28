@@ -41,33 +41,28 @@ public class App {
 
         System.out.println("\n2. Seguidores\n======================================================================\n");
 
-        // Grupo 1: se siguen en ronda (ana -> bruno -> carla -> diego -> ana)
         red.seguirUsuario(ana, bruno);
         red.seguirUsuario(bruno, carla);
         red.seguirUsuario(carla, diego);
         red.seguirUsuario(diego, ana);
         red.seguirUsuario(bruno, ana);
 
-        // Grupo 2: también en ronda (eva -> fede -> gabi -> hugo -> eva)
         red.seguirUsuario(eva, fede);
         red.seguirUsuario(fede, gabi);
         red.seguirUsuario(gabi, hugo);
         red.seguirUsuario(hugo, eva);
 
-        // Lucia es el puente: carla -> lucia -> eva
         red.seguirUsuario(carla, lucia);
         red.seguirUsuario(lucia, eva);
 
-        System.out.println("Seguidores de ana: " + red.obtenerSeguidores(ana)); // bruno y diego
-        System.out.println("Seguidos de bruno: " + red.obtenerSeguidos(bruno)); // carla y ana
+        System.out.println("Seguidores de ana: " + red.obtenerSeguidores(ana)); 
+        System.out.println("Seguidos de bruno: " + red.obtenerSeguidos(bruno)); 
 
         System.out.println("\n3. Posteos, comentarios y menciones\n======================================================================\n");
 
-        // Ana menciona a fede, que es del otro grupo y no la sigue
         Posteo p1 = red.publicar(ana, "Hola a todos! Les presento a @fede");
         System.out.println("Publicado: " + p1);
 
-        // Carla comenta y menciona a hugo
         red.comentar(carla, p1, "Que bueno! @hugo mira esto");
         System.out.println("Carla comento el posteo y menciono a hugo");
 
@@ -76,36 +71,29 @@ public class App {
 
         System.out.println("\n4. Compartir\n======================================================================\n");
 
-        // A fede le llego p1 porque lo mencionaron, asi que puede compartirlo
         boolean fedeComparte = red.compartir(fede, p1);
         System.out.println("fede comparte el posteo de ana: " + fedeComparte); // true
 
-        // A gabi no le llego p1, asi que no puede compartirlo
         boolean gabiComparte = red.compartir(gabi, p1);
         System.out.println("gabi comparte el posteo de ana: " + gabiComparte); // false
 
         System.out.println("\n5. Feed y alcance\n======================================================================\n");
 
-        // Eva sigue a fede: ve el posteo de fede y el que fede compartio
         System.out.println("Feed de eva:");
         for (Posteo p : red.obtenerFeed(eva)) {
             System.out.println("  - " + p);
         }
 
-        // p1 llega a: seguidores de ana (bruno, diego), mencionados (fede, hugo)
-        // y seguidores de fede, que lo compartio (eva)
+        
         System.out.println("\nAlcance del posteo de ana: " + red.calcularAlcance(p1));
 
         System.out.println("\n6. Sugerencias y grados de separacion\n======================================================================\n");
 
-        // Ana sigue a bruno, y bruno sigue a carla -> le sugerimos carla
         System.out.println("Sugerencias para ana: " + red.sugerirUsuarios(ana));
 
-        // ana -> bruno -> carla -> lucia -> eva = 4 pasos
         int anaAEva = red.gradosDeSeparacion(ana, eva);
         System.out.println("Pasos de ana hasta eva: " + anaAEva);
 
-        // Nadie del grupo 2 sigue a alguien del grupo 1 -> no hay camino
         int evaAAna = red.gradosDeSeparacion(eva, ana);
         if (evaAAna == -1) {
             System.out.println("No hay camino que conecte a eva con ana");
@@ -130,7 +118,6 @@ public class App {
             puesto++;
         }
 
-        // --- Comunidades: una por línea ---
         System.out.println("\nComunidades detectadas:");
 
         int numero = 1;
@@ -139,7 +126,6 @@ public class App {
             numero++;
         }
 
-        // --- Usuarios puente ---
         System.out.println("\nUsuarios puente (si se van, la red queda dividida):");
 
         for (Usuario puente : red.identificarUsuariosPuente()) {
@@ -148,7 +134,7 @@ public class App {
 
         System.out.println("\n8. Consultas propias\n======================================================================");
 
-        // --- Consulta 1 ---
+        // Consulta 1
         consulta(1, "Camino de difusion", "Por donde le llego el posteo de ana a cada usuario?");
         for (Usuario u : red.calcularAlcance(p1)) {
             List<Usuario> camino = red.caminoDeDifusion(p1, u);
@@ -159,7 +145,7 @@ public class App {
             System.out.println("  " + gabi + ":  no le llego");
         }
 
-        // --- Consulta 2 ---
+        // Consulta 2 
         consulta(2, "Centro de cada comunidad", "Quien es el usuario mas cercano a todos en su grupo?");
         int numeroComunidad = 1;
         for (Map.Entry<Set<Usuario>, Usuario> entrada : red.centrosDeComunidades().entrySet()) {
@@ -167,13 +153,13 @@ public class App {
             numeroComunidad++;
         }
 
-        // --- Consulta 3 ---
+        // Consulta 3 
         consulta(3, "Circulo de interaccion", "Con quienes esta conectado cada usuario por interacciones?");
         mostrarCirculo(red, carla);
         mostrarCirculo(red, ana);
         mostrarCirculo(red, gabi);
 
-        // --- Consulta 4 ---
+        // Consulta 4 
         consulta(4, "Grupos de amigos mutuos", "Que usuarios se siguen mutuamente entre si?");
         List<Set<Usuario>> grupos = red.gruposDeAmigosMutuos();
         if (grupos.isEmpty()) {
@@ -185,7 +171,7 @@ public class App {
             numeroGrupo++;
         }
 
-        // --- Consulta 5 ---
+        // Consulta 5 
         consulta(5, "Orden de llegada", "En que orden le fue llegando el posteo de ana a cada usuario?");
         int orden = 1;
         for (Usuario u : red.ordenDeLlegada(p1)) {
@@ -194,7 +180,6 @@ public class App {
         }
     }
 
-    // Imprime el encabezado de una consulta: numero, nombre y la pregunta que responde
     private static void consulta(int numero, String nombre, String pregunta) {
         System.out.println();
         System.out.println("[Consulta " + numero + "] " + nombre);

@@ -34,7 +34,6 @@ public class PlataformaRedSocialTest {
         red.registrarUsuario(diego);
     }
 
-    // ---------------------------------------------------------- Usuarios
 
     @Test
     public void registrarUsuarioDuplicadoTest() {
@@ -64,7 +63,6 @@ public class PlataformaRedSocialTest {
         assertFalse(red.obtenerSeguidores(ana).contains(bruno));
     }
 
-    // ----------------------------------------------------------- Alcance
 
     @Test
     public void alcanceLlegaALosSeguidoresTest() {
@@ -113,7 +111,6 @@ public class PlataformaRedSocialTest {
         assertTrue(red.calcularAlcance(posteo).contains(diego));
     }
 
-    // -------------------------------------------------------- Compartir
 
     @Test
     public void mencionadoQueComparteLlegaASusSeguidoresTest() {
@@ -138,7 +135,6 @@ public class PlataformaRedSocialTest {
         assertFalse(red.calcularAlcance(posteo).contains(carla));
     }
 
-    // ------------------------------------------------------------- Feed
 
     @Test
     public void feedIncluyePosteoDeSeguidoTest() {
@@ -172,7 +168,6 @@ public class PlataformaRedSocialTest {
         assertFalse(red.obtenerFeed(bruno).contains(posteo));
     }
 
-    // --------------------------------- Todos usan el mismo grafo
 
     @Test
     public void analisisVeLosSeguidoresDeLaPlataformaTest() {
