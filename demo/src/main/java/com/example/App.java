@@ -131,6 +131,9 @@ public class App {
         for (Usuario puente : red.identificarUsuariosPuente()) {
             System.out.println("  - " + puente);
         }
+        System.out.println("\nSeguidores mutuos:\n");
+
+        System.out.println("Seguidores mutuos de ana: " + red.obtenerSeguidoresMutuos(ana)); // bruno
 
         System.out.println("\n8. Consultas propias\n======================================================================");
 
