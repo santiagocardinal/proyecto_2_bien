@@ -135,7 +135,7 @@ public class App {
 
         System.out.println("Seguidores mutuos de ana: " + red.obtenerSeguidoresMutuos(ana)); // bruno
 
-        System.out.println("\n8. Consultas propias\n======================================================================");
+        System.out.println("\n8. Consultas \n======================================================================");
 
         // Consulta 1
         consulta(1, "Camino de difusion", "Por donde le llego el posteo de ana a cada usuario?");
@@ -185,7 +185,7 @@ public class App {
 
     private static void consulta(int numero, String nombre, String pregunta) {
         System.out.println();
-        System.out.println("[Consulta " + numero + "] " + nombre);
+        System.out.println("Consulta " + numero + " " + nombre);
         System.out.println("  " + pregunta);
         System.out.println("  ----------------------------------------------------------------");
     }
