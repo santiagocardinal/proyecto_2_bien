@@ -84,4 +84,52 @@ public class DirectedGraphTest {
         grafo.agregarArista("C", "A", 1);
         assertTrue(grafo.tieneCiclos());
     }
+     
+    @Test
+    public void grafoVacioTest() {
+        DirectedGraph<String, Integer> vacio = new DirectedGraph<>();
+
+        assertEquals(0, vacio.cantidadDeVertices());
+        assertEquals(0, vacio.cantidadDeAristas());
+        assertFalse(vacio.tieneCiclos());
+        assertTrue(vacio.esConexo());
+    }
+
+    @Test
+    public void unVerticeTest() {
+        DirectedGraph<String, Integer> uno = new DirectedGraph<>();
+        uno.agregarVertice("A");
+
+        assertTrue(uno.esConexo());
+        assertFalse(uno.tieneCiclos());
+        assertTrue(uno.successors(uno.construirComparable("A")).isEmpty());
+        assertTrue(uno.predecessors(uno.construirComparable("A")).isEmpty());
+    }
+
+    @Test
+    public void conexoYNoConexoTest() {
+        grafo.agregarArista("A", "B", 1);
+        assertFalse(grafo.esConexo()); // C queda aislado
+
+        grafo.agregarArista("C", "B", 1);
+        assertTrue(grafo.esConexo()); // ahora todos estan unidos (sin mirar la direccion)
+    }
+
+    @Test
+    public void verticeInexistenteTest() {
+        assertNull(grafo.buscarVertice(grafo.construirComparable("Z")));
+        assertTrue(grafo.successors(grafo.construirComparable("Z")).isEmpty());
+        assertTrue(grafo.predecessors(grafo.construirComparable("Z")).isEmpty());
+        assertTrue(grafo.adyacencias(grafo.construirComparable("Z")).isEmpty());
+        assertFalse(grafo.agregarArista("A", "Z", 1));
+        assertFalse(grafo.eliminarArista(grafo.construirComparable("A"), grafo.construirComparable("Z")));
+        assertFalse(grafo.removerVertice(grafo.construirComparable("Z")));
+    }
+
+    @Test
+    public void lazoEsCicloTest() {
+        grafo.agregarArista("A", "A", 1);
+
+        assertTrue(grafo.tieneCiclos());
+    }
 }

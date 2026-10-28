@@ -92,4 +92,49 @@ public class GraphTest {
         grafo.vaciar();
         assertEquals(0, grafo.cantidadDeVertices());
     }
+   
+    @Test
+    public void grafoVacioTest() {
+        Graph<String, Integer> vacio = new Graph<>();
+
+        assertEquals(0, vacio.cantidadDeVertices());
+        assertFalse(vacio.tieneCiclos());
+        assertTrue(vacio.esConexo());
+    }
+
+    @Test
+    public void unVerticeTest() {
+        Graph<String, Integer> uno = new Graph<>();
+        uno.agregarVertice("A");
+
+        assertTrue(uno.esConexo());
+        assertFalse(uno.tieneCiclos());
+        assertTrue(uno.adyacencias(uno.construirComparable("A")).isEmpty());
+    }
+
+    @Test
+    public void conexoYNoConexoTest() {
+        grafo.agregarArista("A", "B", 1);
+        assertFalse(grafo.esConexo()); // C queda aislado
+
+        grafo.agregarArista("B", "C", 1);
+        assertTrue(grafo.esConexo());
+    }
+
+    @Test
+    public void conYSinCiclosTest() {
+        grafo.agregarArista("A", "B", 1);
+        grafo.agregarArista("B", "C", 1);
+        assertFalse(grafo.tieneCiclos()); // una cadena no es un ciclo
+
+        grafo.agregarArista("C", "A", 1);
+        assertTrue(grafo.tieneCiclos());
+    }
+
+    @Test
+    public void verticeInexistenteTest() {
+        assertTrue(grafo.adyacencias(grafo.construirComparable("Z")).isEmpty());
+        assertFalse(grafo.eliminarArista(grafo.construirComparable("A"), grafo.construirComparable("Z")));
+        assertFalse(grafo.removerVertice(grafo.construirComparable("Z")));
+    }
 }
