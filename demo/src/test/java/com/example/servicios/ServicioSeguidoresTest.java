@@ -236,4 +236,55 @@ public class ServicioSeguidoresTest {
 
         assertTrue(servicio.gruposDeAmigosMutuos().isEmpty());
     }
+         
+
+    @Test
+    public void seguidoresMutuosTest() {
+        ServicioSeguidores servicio = new ServicioSeguidores();
+        Usuario ana = new Usuario("ana");
+        Usuario bruno = new Usuario("bruno");
+        Usuario carla = new Usuario("carla");
+
+        // ana y bruno se siguen entre si, carla solo sigue a ana
+        servicio.seguir(ana, bruno);
+        servicio.seguir(bruno, ana);
+        servicio.seguir(carla, ana);
+
+        List<Usuario> mutuos = servicio.obtenerSeguidoresMutuos(ana);
+
+        assertEquals(1, mutuos.size());
+        assertTrue(mutuos.contains(bruno));
+        assertFalse(mutuos.contains(carla));
+    }
+
+    @Test
+    public void sinSeguidoresMutuosTest() {
+        ServicioSeguidores servicio = new ServicioSeguidores();
+        Usuario ana = new Usuario("ana");
+        Usuario bruno = new Usuario("bruno");
+
+        // bruno sigue a ana, pero ana no lo sigue a el
+        servicio.seguir(bruno, ana);
+
+        assertTrue(servicio.obtenerSeguidoresMutuos(ana).isEmpty());
+    }
+
+    @Test
+    public void dejarDeSeguirRompeElMutuoTest() {
+        ServicioSeguidores servicio = new ServicioSeguidores();
+        Usuario ana = new Usuario("ana");
+        Usuario bruno = new Usuario("bruno");
+
+        servicio.seguir(ana, bruno);
+        servicio.seguir(bruno, ana);
+        servicio.dejarDeSeguir(ana, bruno);
+
+        assertTrue(servicio.obtenerSeguidoresMutuos(ana).isEmpty());
+        assertTrue(servicio.obtenerSeguidoresMutuos(bruno).isEmpty());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void seguidoresMutuosDeNullTest() {
+        new ServicioSeguidores().obtenerSeguidoresMutuos(null);
+    }
 }

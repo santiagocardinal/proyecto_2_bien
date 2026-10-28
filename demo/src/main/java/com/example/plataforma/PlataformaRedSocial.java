@@ -82,6 +82,11 @@ public class PlataformaRedSocial {
         validarUsuario(usuario);
         return servicioSeguidores.obtenerSeguidos(usuario);
     }
+    
+    public List<Usuario> obtenerSeguidoresMutuos(Usuario usuario) {
+        validarUsuario(usuario);
+        return servicioSeguidores.obtenerSeguidoresMutuos(usuario);
+    }
 
     //Posteos  - CLASES DE RODRIGO
 

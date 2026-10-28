@@ -121,6 +121,28 @@ public class ServicioSeguidores
         return obtenerSeguidos(usuario).size();
 
     }
+      
+    
+    public List<Usuario> obtenerSeguidoresMutuos(Usuario usuario)
+    {
+        if (usuario == null)
+        {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
+
+        List<Usuario> mutuos = new ArrayList<>();
+        List<Usuario> seguidos = obtenerSeguidos(usuario);
+
+        // Un seguidor es mutuo si el usuario tambien lo sigue a el
+        for (Usuario seguidor : obtenerSeguidores(usuario))
+        {
+            if (seguidos.contains(seguidor))
+            {
+                mutuos.add(seguidor);
+            }
+        }
+        return mutuos;
+    }
  
     public void agregarUsuario(Usuario usuario)
     {

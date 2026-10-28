@@ -126,5 +126,26 @@ public class ServicioDifusionTest {
 
         assertTrue(difusion.caminoDeDifusion(posteo, diego).isEmpty());
     }
-  
+    
+    // Consulta 5: orden de llegada
+
+    @Test
+    public void ordenDeLlegadaPorNivelesTest() {
+        seguidores.seguir(bruno, ana);
+        seguidores.seguir(carla, bruno);
+        Posteo posteo = new Posteo("P1", "Hola", ana);
+        difusion.registrarCompartido(bruno, posteo);
+
+        List<Usuario> orden = difusion.ordenDeLlegada(posteo);
+
+        // primero bruno (sigue a ana), despues carla (por el compartido de bruno)
+        assertEquals(Arrays.asList(bruno, carla), orden);
+    }
+
+    @Test
+    public void ordenDeLlegadaSinSeguidoresEsVacioTest() {
+        Posteo posteo = new Posteo("P1", "Hola", ana);
+
+        assertTrue(difusion.ordenDeLlegada(posteo).isEmpty());
+    }
 }

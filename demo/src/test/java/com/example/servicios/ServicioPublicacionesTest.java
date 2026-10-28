@@ -95,4 +95,27 @@ public class ServicioPublicacionesTest {
 
         assertTrue(alcance >= 2);
     }
+    
+    // Consulta 3: circulo de interaccion
+
+    @Test
+    public void circuloIncluyeInteraccionesIndirectasTest() {
+        // maria comenta a juan, y juan menciona a pedro
+        Posteo posteoDeJuan = servicio.publicar(juan, "Hola @pedro", todosLosUsuarios);
+        servicio.comentar(maria, posteoDeJuan, "Buenisimo", todosLosUsuarios);
+
+        Set<Usuario> circulo = servicio.circuloDeInteraccion(maria);
+
+        // maria interactuo con juan, y juan con pedro
+        assertTrue(circulo.contains(juan));
+        assertTrue(circulo.contains(pedro));
+        assertFalse(circulo.contains(maria));
+    }
+
+    @Test
+    public void circuloDeQuienNoInteractuoEsVacioTest() {
+        servicio.publicar(juan, "Hola a todos", todosLosUsuarios);
+
+        assertTrue(servicio.circuloDeInteraccion(carlos).isEmpty());
+    }
 }
